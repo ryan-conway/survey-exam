@@ -1,0 +1,31 @@
+ext {
+
+    versions = [
+            'coroutines': '1.5.2-native-mt',
+            'kotlin'    : '1.5.20',
+            'navigation': '2.3.5',
+    ]
+
+    deps = [
+            'android'       : [
+                    'androidx.activity:activity-ktx:1.4.0',
+                    'androidx.appcompat:appcompat:1.4.0',
+                    'androidx.constraintlayout:constraintlayout:2.1.2',
+                    'androidx.core:core-ktx:1.7.0',
+                    "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0",
+                    "com.google.android.material:material:1.4.0"
+            ],
+            'kotlin'        : [
+                    "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+            ],
+            'coroutines'    : [
+                    "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
+                    "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
+            ],
+            'navigation'    : [
+
+                    "androidx.navigation:navigation-fragment-ktx:${versions.navigation}",
+                    "androidx.navigation:navigation-ui-ktx:${versions.navigation}",
+            ],
+    ]
+}
