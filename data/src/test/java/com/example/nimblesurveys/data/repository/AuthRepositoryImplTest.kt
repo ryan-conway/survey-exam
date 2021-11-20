@@ -5,10 +5,12 @@ import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.SurveyApi
 import com.example.nimblesurveys.data.api.auth.AuthApiService
 import com.example.nimblesurveys.domain.model.Token
+import com.example.nimblesurveys.domain.model.User
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
+import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -18,6 +20,7 @@ import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.verify
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -31,6 +34,13 @@ class AuthRepositoryImplTest {
     private val credential = ApiCredential(API_KEY, API_SECRET)
 
     private val mockInterceptor = mock(MockInterceptor::class.java, CALLS_REAL_METHODS)
+
+    private val token = Token(
+        tokenType = TOKEN_TYPE,
+        accessToken = ACCESS_TOKEN,
+        refreshToken = REFRESH_TOKEN,
+        expiry = CREATED_AT + EXPIRY
+    )
 
     @Before
     fun setUp() {
@@ -108,6 +118,41 @@ class AuthRepositoryImplTest {
         }
     }
 
+    @Test
+    fun getUser_success_returnUser() = runBlocking {
+        getUserSuccess()
+        val result = repository.getUser(token)
+        assertThat(result, instanceOf(User::class.java))
+    }
+
+    @Test
+    fun getUser_success_userHasCorrectValues() = runBlocking {
+        getUserSuccess()
+        val result = repository.getUser(token)
+        assertThat(result.email, `is`(EMAIL))
+        assertThat(result.avatar, `is`(AVATAR_URL))
+    }
+
+    @Test
+    fun getUser_success_correctValuesPassed() = runBlocking {
+        getUserSuccess()
+        repository.getUser(token)
+        val authHeader = mockInterceptor.request.header("Authorization")
+        assertThat(authHeader, `is`("${token.tokenType} ${token.accessToken}"))
+    }
+
+    @Test
+    fun getUser_failure_exceptionThrown() = runBlocking {
+        getUserFailure()
+        try {
+            repository.getUser(token)
+            assert(false)
+        } catch (e: HttpException) {
+            assertThat(e.code(), `is`(401))
+            assertThat(e.message(), `is`(RESPONSE_FAILED_EMPTY))
+        }
+    }
+
     private fun loginSuccess() {
         `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_SUCCESS)
         `when`(mockInterceptor.getCode()).thenReturn(200)
@@ -127,12 +172,26 @@ class AuthRepositoryImplTest {
         `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_FAILED)
         `when`(mockInterceptor.getCode()).thenReturn(401)
     }
+
+    private fun getUserSuccess() {
+        `when`(mockInterceptor.getResponse()).thenReturn(USER_RESPONSE_SUCCESS)
+        `when`(mockInterceptor.getCode()).thenReturn(200)
+    }
+
+    private fun getUserFailure() {
+        `when`(mockInterceptor.getResponse()).thenReturn(RESPONSE_FAILED_EMPTY)
+        `when`(mockInterceptor.getCode()).thenReturn(401)
+    }
 }
 
 abstract class MockInterceptor : Interceptor {
+
+    lateinit var request: Request
+
     override fun intercept(chain: Interceptor.Chain): Response {
         if (!BuildConfig.DEBUG) throw IllegalAccessError("For debugging only")
 
+        request = chain.request()
         val responseString = getResponse()
         return chain.proceed(chain.request())
             .newBuilder()
@@ -159,8 +218,10 @@ const val API_KEY = "apikey"
 const val API_SECRET = "apisecret"
 const val ACCESS_TOKEN = "accesstoken"
 const val REFRESH_TOKEN = "refreshtoken"
+const val TOKEN_TYPE = "Bearer"
 const val EXPIRY = 7200L
 const val CREATED_AT = 1597169495L
+const val AVATAR_URL = "avatarurl"
 
 const val LOGIN_RESPONSE_SUCCESS = """
 {
@@ -169,7 +230,7 @@ const val LOGIN_RESPONSE_SUCCESS = """
     "type": "token",
     "attributes": {
       "access_token": "$ACCESS_TOKEN",
-      "token_type": "Bearer",
+      "token_type": "$TOKEN_TYPE",
       "expires_in": $EXPIRY,
       "refresh_token": "$REFRESH_TOKEN",
       "created_at": $CREATED_AT
@@ -189,3 +250,18 @@ const val LOGIN_RESPONSE_FAILED = """
   ]
 }
 """
+
+const val USER_RESPONSE_SUCCESS = """
+{
+  "data": {
+    "id": $ID,
+    "type": "user",
+    "attributes": {
+      "email": "$EMAIL",
+      "avatar_url": "$AVATAR_URL"
+    }
+  }
+}
+"""
+
+const val RESPONSE_FAILED_EMPTY = "{}"

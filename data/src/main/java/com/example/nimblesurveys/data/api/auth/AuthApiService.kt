@@ -2,6 +2,8 @@ package com.example.nimblesurveys.data.api.auth
 
 import com.example.nimblesurveys.data.api.response.ApiResponse
 import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthApiService {
@@ -15,4 +17,9 @@ interface AuthApiService {
     suspend fun getAccessToken(
         @Body accessTokenRequest: AccessTokenRequest
     ): ApiResponse<AccessTokenAttributes>
+
+    @GET("api/v1/me")
+    suspend fun getUser(
+        @Header("Authorization") authorization: String
+    ): ApiResponse<UserAttributes>
 }

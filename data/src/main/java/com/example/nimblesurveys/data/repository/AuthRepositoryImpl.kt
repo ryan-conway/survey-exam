@@ -11,7 +11,7 @@ import com.example.nimblesurveys.domain.repository.AuthRepository
 class AuthRepositoryImpl(
     private val api: AuthApiService,
     private val apiCredential: ApiCredential
-): AuthRepository {
+) : AuthRepository {
 
     @Throws(Throwable::class)
     override suspend fun login(username: String, password: String): Token {
@@ -24,6 +24,7 @@ class AuthRepositoryImpl(
         val apiResponse = api.signIn(signInRequest)
         val signInResult = apiResponse.data.attributes
         return Token(
+            tokenType = signInResult.tokenType,
             accessToken = signInResult.accessToken,
             refreshToken = signInResult.refreshToken,
             expiry = signInResult.createdAt + signInResult.expiresIn
@@ -39,12 +40,21 @@ class AuthRepositoryImpl(
         val apiResponse = api.getAccessToken(accessTokenRequest)
         val getTokenResult = apiResponse.data.attributes
         return Token(
+            tokenType = getTokenResult.tokenType,
             accessToken = getTokenResult.accessToken,
             refreshToken = getTokenResult.refreshToken,
-            expiry = getTokenResult.createdAt + getTokenResult.expiresIn)
+            expiry = getTokenResult.createdAt + getTokenResult.expiresIn
+        )
     }
 
-    override suspend fun getUser(accessToken: String): User {
-        TODO("Not yet implemented")
+    override suspend fun getUser(token: Token): User {
+        val authorization = "${token.tokenType} ${token.accessToken}"
+        val apiResponse = api.getUser(authorization)
+        val getUserResult = apiResponse.data.attributes
+        return User(
+            id = apiResponse.data.id,
+            email = getUserResult.email,
+            avatar = getUserResult.avatarUrl
+        )
     }
 }
