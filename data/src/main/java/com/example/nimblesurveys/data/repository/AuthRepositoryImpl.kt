@@ -1,6 +1,7 @@
 package com.example.nimblesurveys.data.repository
 
 import com.example.nimblesurveys.data.api.ApiCredential
+import com.example.nimblesurveys.data.api.auth.AccessTokenRequest
 import com.example.nimblesurveys.data.api.auth.AuthApiService
 import com.example.nimblesurveys.data.api.auth.SignInRequest
 import com.example.nimblesurveys.domain.model.Token
@@ -30,7 +31,17 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun getAccessToken(refreshToken: String): Token {
-        TODO("Not yet implemented")
+        val accessTokenRequest = AccessTokenRequest(
+            refreshToken = refreshToken,
+            clientId = apiCredential.key,
+            clientSecret = apiCredential.secret
+        )
+        val apiResponse = api.getAccessToken(accessTokenRequest)
+        val getTokenResult = apiResponse.data.attributes
+        return Token(
+            accessToken = getTokenResult.accessToken,
+            refreshToken = getTokenResult.refreshToken,
+            expiry = getTokenResult.createdAt + getTokenResult.expiresIn)
     }
 
     override suspend fun getUser(accessToken: String): User {

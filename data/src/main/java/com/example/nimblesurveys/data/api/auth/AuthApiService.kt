@@ -10,4 +10,9 @@ interface AuthApiService {
     suspend fun signIn(
         @Body signInRequest: SignInRequest
     ): ApiResponse<SignInAttributes>
+
+    @POST("api/v1/oauth/token")
+    suspend fun getAccessToken(
+        @Body accessTokenRequest: AccessTokenRequest
+    ): ApiResponse<AccessTokenAttributes>
 }

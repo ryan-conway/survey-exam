@@ -14,8 +14,10 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
+import org.mockito.kotlin.argumentCaptor
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -32,7 +34,6 @@ class AuthRepositoryImplTest {
 
     @Before
     fun setUp() {
-        `when`(mockInterceptor.getCode()).thenReturn(200)
         apiService = getRetrofitMock(mockInterceptor).create(AuthApiService::class.java)
         repository = AuthRepositoryImpl(apiService, credential)
     }
@@ -52,7 +53,7 @@ class AuthRepositoryImplTest {
     }
 
     @Test
-    fun login_returnToken() = runBlocking {
+    fun login_success_returnToken() = runBlocking {
         loginSuccess()
         val result = repository.login(EMAIL, PASSWORD)
         assertThat(result, instanceOf(Token::class.java))
@@ -75,16 +76,55 @@ class AuthRepositoryImplTest {
             assert(false)
         } catch (e: HttpException) {
             assertThat(e.code(), `is`(401))
-            assertThat(e.message(), `is`(LOGIN_FAILED))
+            assertThat(e.message(), `is`(LOGIN_RESPONSE_FAILED))
+        }
+    }
+
+    @Test
+    fun getAccessToken_success_returnToken() = runBlocking {
+        getAccessTokenSuccess()
+        val result = repository.getAccessToken(REFRESH_TOKEN)
+        assertThat(result, instanceOf(Token::class.java))
+    }
+
+    @Test
+    fun getAccessToken_success_tokenHasCorrectValues() = runBlocking {
+        getAccessTokenSuccess()
+        val result = repository.getAccessToken(REFRESH_TOKEN)
+        assertThat(result.accessToken, equalTo(ACCESS_TOKEN))
+        assertThat(result.refreshToken, equalTo(REFRESH_TOKEN))
+        assertThat(result.expiry, equalTo(CREATED_AT + EXPIRY))
+    }
+
+    @Test
+    fun getAccessToken_failure_exceptionThrown() = runBlocking {
+        getAccessTokenFailure()
+        try {
+            repository.getAccessToken(REFRESH_TOKEN)
+            assert(false)
+        } catch (e: HttpException) {
+            assertThat(e.code(), `is`(401))
+            assertThat(e.message(), `is`(LOGIN_RESPONSE_FAILED))
         }
     }
 
     private fun loginSuccess() {
         `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_SUCCESS)
+        `when`(mockInterceptor.getCode()).thenReturn(200)
     }
 
     private fun loginFailed() {
-        `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_FAILED)
+        `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_FAILED)
+        `when`(mockInterceptor.getCode()).thenReturn(401)
+    }
+
+    private fun getAccessTokenSuccess() {
+        `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_SUCCESS)
+        `when`(mockInterceptor.getCode()).thenReturn(200)
+    }
+
+    private fun getAccessTokenFailure() {
+        `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_FAILED)
         `when`(mockInterceptor.getCode()).thenReturn(401)
     }
 }
@@ -123,7 +163,7 @@ const val EXPIRY = 7200L
 const val CREATED_AT = 1597169495L
 
 const val LOGIN_RESPONSE_SUCCESS = """
-    {
+{
   "data": {
     "id": $ID,
     "type": "token",
@@ -138,7 +178,7 @@ const val LOGIN_RESPONSE_SUCCESS = """
 }
 """
 
-const val LOGIN_FAILED = """
+const val LOGIN_RESPONSE_FAILED = """
 {
   "errors": [
     {
