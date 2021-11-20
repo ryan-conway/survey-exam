@@ -1,16 +1,23 @@
 package com.example.nimblesurveys.data.repository
 
+import com.example.nimblesurveys.data.adapter.TokenAdapter
 import com.example.nimblesurveys.data.api.ApiCredential
+import com.example.nimblesurveys.data.api.auth.AccessTokenAttributes
 import com.example.nimblesurveys.data.api.auth.AccessTokenRequest
 import com.example.nimblesurveys.data.api.auth.AuthApiService
 import com.example.nimblesurveys.data.api.auth.SignInRequest
+import com.example.nimblesurveys.data.cache.AuthDao
 import com.example.nimblesurveys.domain.model.Token
 import com.example.nimblesurveys.domain.model.User
 import com.example.nimblesurveys.domain.repository.AuthRepository
+import com.example.nimblesurveys.domain.repository.TimeRepository
 
 class AuthRepositoryImpl(
+    private val authDao: AuthDao,
     private val api: AuthApiService,
-    private val apiCredential: ApiCredential
+    private val apiCredential: ApiCredential,
+    private val timeRepository: TimeRepository,
+    private val adapter: TokenAdapter,
 ) : AuthRepository {
 
     @Throws(Throwable::class)
@@ -32,19 +39,28 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun getAccessToken(refreshToken: String): Token {
+        val cachedToken = authDao.getToken()
+        val tokenEntity =
+            if (cachedToken == null || cachedToken.expiry <= timeRepository.getCurrentTime()) {
+                val newToken = fetchNewToken(refreshToken)
+                val tokenEntity = adapter.toEntity(newToken)
+                authDao.deleteToken()
+                authDao.insertToken(tokenEntity)
+                tokenEntity
+            } else {
+                cachedToken
+            }
+        return adapter.toToken(tokenEntity)
+    }
+
+    private suspend fun fetchNewToken(refreshToken: String): AccessTokenAttributes {
         val accessTokenRequest = AccessTokenRequest(
             refreshToken = refreshToken,
             clientId = apiCredential.key,
             clientSecret = apiCredential.secret
         )
         val apiResponse = api.getAccessToken(accessTokenRequest)
-        val getTokenResult = apiResponse.data.attributes
-        return Token(
-            tokenType = getTokenResult.tokenType,
-            accessToken = getTokenResult.accessToken,
-            refreshToken = getTokenResult.refreshToken,
-            expiry = getTokenResult.createdAt + getTokenResult.expiresIn
-        )
+        return apiResponse.data.attributes
     }
 
     override suspend fun getUser(token: Token): User {

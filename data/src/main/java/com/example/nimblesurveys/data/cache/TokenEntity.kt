@@ -10,5 +10,5 @@ data class TokenEntity(
     @ColumnInfo(name = "refresh_token") val refreshToken: String,
     @ColumnInfo(name = "access_token") val accessToken: String,
     @ColumnInfo(name = "token_type") val tokenType: String,
-    @ColumnInfo(name = "expiry") val expiresIn: Long,
+    @ColumnInfo(name = "expiry") val expiry: Long,
 )

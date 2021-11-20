@@ -1,17 +1,23 @@
 package com.example.nimblesurveys.data.repository
 
 import com.example.nimblesurveys.data.BuildConfig
+import com.example.nimblesurveys.data.adapter.TokenAdapter
 import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.SurveyApi
 import com.example.nimblesurveys.data.api.auth.AuthApiService
+import com.example.nimblesurveys.data.cache.AuthDao
+import com.example.nimblesurveys.data.cache.TokenEntity
 import com.example.nimblesurveys.domain.model.Token
 import com.example.nimblesurveys.domain.model.User
+import com.example.nimblesurveys.domain.repository.TimeRepository
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
+import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.core.AnyOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -26,10 +32,12 @@ class AuthRepositoryImplTest {
 
     private lateinit var repository: AuthRepositoryImpl
 
+    private lateinit var authDao: AuthDaoFake
     private lateinit var apiService: AuthApiService
     private val credential = ApiCredential(API_KEY, API_SECRET)
 
     private val mockInterceptor = mock(MockInterceptor::class.java, CALLS_REAL_METHODS)
+    private val timeRepository = mock(TimeRepository::class.java)
 
     private val token = Token(
         tokenType = TOKEN_TYPE,
@@ -40,8 +48,17 @@ class AuthRepositoryImplTest {
 
     @Before
     fun setUp() {
+        authDao = AuthDaoFake()
         apiService = getRetrofitFake(mockInterceptor).create(AuthApiService::class.java)
-        repository = AuthRepositoryImpl(apiService, credential)
+        repository = AuthRepositoryImpl(
+            authDao,
+            apiService,
+            credential,
+            timeRepository,
+            TokenAdapter()
+        )
+
+        `when`(timeRepository.getCurrentTime()).thenReturn(CREATED_AT)
     }
 
     @Test
@@ -86,6 +103,34 @@ class AuthRepositoryImplTest {
         assertThat(result.accessToken, equalTo(ACCESS_TOKEN))
         assertThat(result.refreshToken, equalTo(REFRESH_TOKEN))
         assertThat(result.expiry, equalTo(CREATED_AT + EXPIRY))
+    }
+
+    @Test
+    fun getAccessToken_success_tokenIsCached() = runBlocking {
+        getAccessTokenSuccess()
+        assert(authDao.getToken() == null)
+        repository.getAccessToken(REFRESH_TOKEN)
+        assert(authDao.getToken() != null)
+    }
+
+    @Test
+    fun getAccessToken_tokenExpired_cachedTokenIsDeleted() = runBlocking {
+        getAccessTokenSuccess()
+        repository.getAccessToken(REFRESH_TOKEN)
+        val expiryTime = CREATED_AT + EXPIRY
+        `when`(timeRepository.getCurrentTime()).thenReturn(expiryTime)
+        repository.getAccessToken(REFRESH_TOKEN)
+        assertThat(authDao.wasTokenDeleted, `is`(true))
+    }
+
+    @Test
+    fun getAccessToken_tokenNotExpired_cachedTokenNotDeleted() = runBlocking {
+        getAccessTokenSuccess()
+        repository.getAccessToken(REFRESH_TOKEN)
+        val currentTime = CREATED_AT + 1
+        `when`(timeRepository.getCurrentTime()).thenReturn(currentTime)
+        repository.getAccessToken(REFRESH_TOKEN)
+        assertThat(authDao.wasTokenDeleted, `is`(false))
     }
 
     @Test
@@ -205,6 +250,28 @@ abstract class MockInterceptor : Interceptor {
 
     abstract fun getResponse(): String
     abstract fun getCode(): Int
+}
+
+class AuthDaoFake: AuthDao {
+
+    private var token: TokenEntity? = null
+    var tokenInsertCount: Int = 0
+    var wasTokenDeleted: Boolean = false
+
+    override fun insertToken(token: TokenEntity) {
+        this.token = token
+        tokenInsertCount++
+    }
+
+    override fun getToken(): TokenEntity? = token
+
+    override fun deleteToken() {
+        if (token != null) {
+            wasTokenDeleted = true
+        }
+        this.token = null
+    }
+
 }
 
 const val ID = 1
