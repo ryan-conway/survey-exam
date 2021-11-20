@@ -46,7 +46,11 @@ class LoginViewModel @Inject constructor(
     private fun onLoginSuccess() = _eventLoginSuccess.postValue(true)
 
     private fun onLoginFailed(e: Throwable) {
-        _eventError.postValue(e.message)
+        if (e is MissingCredentialsException) {
+            _eventError.postValue("Missing username or password")
+        } else {
+            _eventError.postValue("Something went wrong")
+        }
     }
 
     fun onDoneLoginSuccess() = _eventLoginSuccess.postValue(null)
