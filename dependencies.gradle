@@ -4,6 +4,7 @@ ext {
             'coroutines': '1.5.2-native-mt',
             'kotlin'    : '1.5.20',
             'navigation': '2.3.5',
+            'retrofit'  : '2.9.0',
     ]
 
     deps = [
@@ -26,6 +27,10 @@ ext {
 
                     "androidx.navigation:navigation-fragment-ktx:${versions.navigation}",
                     "androidx.navigation:navigation-ui-ktx:${versions.navigation}",
+            ],
+            'retrofit'      : [
+                    "com.squareup.retrofit2:retrofit:${versions.retrofit}",
+                    "com.squareup.retrofit2:converter-moshi:${versions.retrofit}"
             ],
     ]
 }
