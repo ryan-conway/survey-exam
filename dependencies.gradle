@@ -1,8 +1,14 @@
 ext {
 
     versions = [
+            'core_test' : '2.1.0',
             'coroutines': '1.5.2-native-mt',
+            'espresso'  : '3.3.0',
+            'junit'     : '4.13.2',
+            'junit_ext' : '1.1.2',
             'kotlin'    : '1.5.20',
+            'mockito'   : '2.19.0',
+            'moshi'     : '1.12.0',
             'navigation': '2.3.5',
             'retrofit'  : '2.9.0',
     ]
@@ -23,6 +29,12 @@ ext {
                     "org.jetbrains.kotlinx:kotlinx-coroutines-android:${versions.coroutines}",
                     "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
             ],
+            'coroutines_test': [
+                    "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
+                    "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.coroutines}"
+            ],
+            'moshi'         : "com.squareup.moshi:moshi-kotlin:${versions.moshi}",
+            'moshi_kapt'    : "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}",
             'navigation'    : [
 
                     "androidx.navigation:navigation-fragment-ktx:${versions.navigation}",
@@ -30,7 +42,21 @@ ext {
             ],
             'retrofit'      : [
                     "com.squareup.retrofit2:retrofit:${versions.retrofit}",
-                    "com.squareup.retrofit2:converter-moshi:${versions.retrofit}"
+                    "com.squareup.retrofit2:converter-moshi:${versions.retrofit}",
             ],
+            'android_testing': [
+                    "androidx.arch.core:core-testing:${versions.core_test}",
+                    "androidx.test.ext:junit:${versions.junit_ext}",
+                    "androidx.test.espresso:espresso-core:${versions.espresso}",
+                    "junit:junit:${versions.junit}",
+            ],
+            'testing'       : [
+                    "androidx.arch.core:core-testing:${versions.core_test}",
+                    "androidx.test.ext:junit:${versions.junit_ext}",
+                    "junit:junit:${versions.junit}",
+                    "org.mockito:mockito-core:${versions.mockito}",
+                    "org.mockito:mockito-inline:${versions.mockito}",
+                    "org.mockito.kotlin:mockito-kotlin:4.0.0",
+            ]
     ]
 }
