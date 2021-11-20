@@ -10,17 +10,13 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.runBlocking
 import okhttp3.*
-import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.verify
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -44,22 +40,8 @@ class AuthRepositoryImplTest {
 
     @Before
     fun setUp() {
-        apiService = getRetrofitMock(mockInterceptor).create(AuthApiService::class.java)
+        apiService = getRetrofitFake(mockInterceptor).create(AuthApiService::class.java)
         repository = AuthRepositoryImpl(apiService, credential)
-    }
-
-    private fun getRetrofitMock(interceptor: Interceptor): Retrofit {
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .build()
-        val moshi = Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-        return Retrofit.Builder()
-            .baseUrl(SurveyApi.BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
     }
 
     @Test
@@ -151,6 +133,20 @@ class AuthRepositoryImplTest {
             assertThat(e.code(), `is`(401))
             assertThat(e.message(), `is`(RESPONSE_FAILED_EMPTY))
         }
+    }
+
+    private fun getRetrofitFake(interceptor: Interceptor): Retrofit {
+        val okHttpClient = OkHttpClient.Builder()
+            .addInterceptor(interceptor)
+            .build()
+        val moshi = Moshi.Builder()
+            .addLast(KotlinJsonAdapterFactory())
+            .build()
+        return Retrofit.Builder()
+            .baseUrl(SurveyApi.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
     }
 
     private fun loginSuccess() {
