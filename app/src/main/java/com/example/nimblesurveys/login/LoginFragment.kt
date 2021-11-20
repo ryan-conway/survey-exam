@@ -55,5 +55,14 @@ class LoginFragment: Fragment() {
                 viewModel.onDoneError()
             }
         }
+        viewModel.eventLoading.observe(viewLifecycleOwner) {
+            if (it == true) {
+                binding.groupLoginControls.visibility = View.GONE
+                binding.groupSigningIn.visibility = View.VISIBLE
+            } else {
+                binding.groupLoginControls.visibility = View.VISIBLE
+                binding.groupSigningIn.visibility = View.GONE
+            }
+        }
     }
 }
