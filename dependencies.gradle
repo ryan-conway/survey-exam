@@ -4,6 +4,7 @@ ext {
             'core_test' : '2.1.0',
             'coroutines': '1.5.2-native-mt',
             'espresso'  : '3.3.0',
+            'hilt'      : '2.40.1',
             'junit'     : '4.13.2',
             'junit_ext' : '1.1.2',
             'kotlin'    : '1.5.20',
@@ -33,6 +34,12 @@ ext {
             'coroutines_test': [
                     "org.jetbrains.kotlinx:kotlinx-coroutines-core:${versions.coroutines}",
                     "org.jetbrains.kotlinx:kotlinx-coroutines-test:${versions.coroutines}"
+            ],
+            'hilt'          : [
+                    "com.google.dagger:hilt-android:${versions.hilt}",
+            ],
+            'hilt_kapt'      : [
+                    "com.google.dagger:hilt-android-compiler:${versions.hilt}"
             ],
             'moshi'         : "com.squareup.moshi:moshi-kotlin:${versions.moshi}",
             'moshi_kapt'    : "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}",
