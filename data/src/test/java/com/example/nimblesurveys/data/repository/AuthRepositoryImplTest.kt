@@ -1,31 +1,24 @@
 package com.example.nimblesurveys.data.repository
 
-import com.example.nimblesurveys.data.BuildConfig
 import com.example.nimblesurveys.data.adapter.TokenAdapter
 import com.example.nimblesurveys.data.api.ApiCredential
-import com.example.nimblesurveys.data.api.SurveyApi
 import com.example.nimblesurveys.data.api.auth.AuthApiService
 import com.example.nimblesurveys.data.cache.AuthDao
 import com.example.nimblesurveys.data.cache.TokenEntity
+import com.example.nimblesurveys.data.util.MockInterceptor
+import com.example.nimblesurveys.data.util.getRetrofitFake
 import com.example.nimblesurveys.domain.model.Token
 import com.example.nimblesurveys.domain.model.User
 import com.example.nimblesurveys.domain.repository.TimeRepository
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.runBlocking
-import okhttp3.*
-import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.core.AnyOf
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.*
 import org.mockito.junit.MockitoJUnitRunner
 import retrofit2.HttpException
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 
 @RunWith(MockitoJUnitRunner::class)
 class AuthRepositoryImplTest {
@@ -180,20 +173,6 @@ class AuthRepositoryImplTest {
         }
     }
 
-    private fun getRetrofitFake(interceptor: Interceptor): Retrofit {
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .build()
-        val moshi = Moshi.Builder()
-            .addLast(KotlinJsonAdapterFactory())
-            .build()
-        return Retrofit.Builder()
-            .baseUrl(SurveyApi.BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
-            .build()
-    }
-
     private fun loginSuccess() {
         `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_SUCCESS)
         `when`(mockInterceptor.getCode()).thenReturn(200)
@@ -225,34 +204,7 @@ class AuthRepositoryImplTest {
     }
 }
 
-abstract class MockInterceptor : Interceptor {
-
-    lateinit var request: Request
-
-    override fun intercept(chain: Interceptor.Chain): Response {
-        if (!BuildConfig.DEBUG) throw IllegalAccessError("For debugging only")
-
-        request = chain.request()
-        val responseString = getResponse()
-        return chain.proceed(chain.request())
-            .newBuilder()
-            .code(getCode())
-            .message(responseString)
-            .body(
-                ResponseBody.create(
-                    MediaType.parse("application/json"),
-                    responseString.toByteArray()
-                )
-            )
-            .addHeader("content-type", "application/json")
-            .build()
-    }
-
-    abstract fun getResponse(): String
-    abstract fun getCode(): Int
-}
-
-class AuthDaoFake: AuthDao {
+class AuthDaoFake : AuthDao {
 
     private var token: TokenEntity? = null
     var tokenInsertCount: Int = 0
