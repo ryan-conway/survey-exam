@@ -84,53 +84,65 @@ class AuthRepositoryImplTest {
 
     @Test
     fun getAccessToken_success_returnToken() = runBlocking {
-        getAccessTokenSuccess()
-        val result = repository.getAccessToken(REFRESH_TOKEN)
+        cacheDummyToken()
+        fetchAccessTokenSuccess()
+        val result = repository.getAccessToken()
         assertThat(result, instanceOf(Token::class.java))
     }
 
     @Test
     fun getAccessToken_success_tokenHasCorrectValues() = runBlocking {
-        getAccessTokenSuccess()
-        val result = repository.getAccessToken(REFRESH_TOKEN)
-        assertThat(result.accessToken, equalTo(ACCESS_TOKEN))
-        assertThat(result.refreshToken, equalTo(REFRESH_TOKEN))
-        assertThat(result.expiry, equalTo(CREATED_AT + EXPIRY))
+        cacheDummyToken()
+        fetchAccessTokenSuccess()
+        val result = repository.getAccessToken()
+        assert(result != null)
+        assertThat(result?.accessToken, equalTo(ACCESS_TOKEN))
+        assertThat(result?.refreshToken, equalTo(REFRESH_TOKEN))
+        assertThat(result?.expiry, equalTo(CREATED_AT + EXPIRY))
     }
 
     @Test
     fun getAccessToken_success_tokenIsCached() = runBlocking {
-        getAccessTokenSuccess()
-        assert(authDao.getToken() == null)
-        repository.getAccessToken(REFRESH_TOKEN)
+        cacheDummyToken()
+        fetchAccessTokenSuccess()
+        repository.getAccessToken()
         assert(authDao.getToken() != null)
     }
 
     @Test
     fun getAccessToken_tokenExpired_cachedTokenIsDeleted() = runBlocking {
-        getAccessTokenSuccess()
-        repository.getAccessToken(REFRESH_TOKEN)
+        cacheDummyToken()
+        fetchAccessTokenSuccess()
+        repository.getAccessToken()
         val expiryTime = CREATED_AT + EXPIRY
         `when`(timeRepository.getCurrentTime()).thenReturn(expiryTime)
-        repository.getAccessToken(REFRESH_TOKEN)
+        repository.getAccessToken()
         assertThat(authDao.wasTokenDeleted, `is`(true))
     }
 
     @Test
     fun getAccessToken_tokenNotExpired_cachedTokenNotDeleted() = runBlocking {
-        getAccessTokenSuccess()
-        repository.getAccessToken(REFRESH_TOKEN)
+        fetchAccessTokenSuccess()
+        repository.getAccessToken()
         val currentTime = CREATED_AT + 1
         `when`(timeRepository.getCurrentTime()).thenReturn(currentTime)
-        repository.getAccessToken(REFRESH_TOKEN)
+        repository.getAccessToken()
         assertThat(authDao.wasTokenDeleted, `is`(false))
     }
 
     @Test
+    fun getAccessToken_noCachedToken_returnNull() = runBlocking {
+        authDao.deleteToken()
+        val result = repository.getAccessToken()
+        assert(result == null)
+    }
+
+    @Test
     fun getAccessToken_failure_exceptionThrown() = runBlocking {
-        getAccessTokenFailure()
+        cacheDummyToken()
+        fetchAccessTokenFailure()
         try {
-            repository.getAccessToken(REFRESH_TOKEN)
+            repository.getAccessToken()
             assert(false)
         } catch (e: HttpException) {
             assertThat(e.code(), `is`(401))
@@ -183,14 +195,25 @@ class AuthRepositoryImplTest {
         `when`(mockInterceptor.getCode()).thenReturn(401)
     }
 
-    private fun getAccessTokenSuccess() {
+    private fun fetchAccessTokenSuccess() {
         `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_SUCCESS)
         `when`(mockInterceptor.getCode()).thenReturn(200)
     }
 
-    private fun getAccessTokenFailure() {
+    private fun fetchAccessTokenFailure() {
         `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_FAILED)
         `when`(mockInterceptor.getCode()).thenReturn(401)
+    }
+
+    private fun cacheDummyToken() {
+        authDao.insertToken(
+            TokenEntity(
+            refreshToken = token.refreshToken,
+            accessToken = "",
+            expiry = 0L,
+            tokenType = token.tokenType
+        )
+        )
     }
 
     private fun getUserSuccess() {

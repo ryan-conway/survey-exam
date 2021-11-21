@@ -6,9 +6,9 @@ import com.example.nimblesurveys.domain.repository.AuthRepository
 
 class GetAccessTokenUseCase(private val repository: AuthRepository) {
 
-    suspend fun execute(refreshToken: String): Result<Token> {
+    suspend fun execute(): Result<Token> {
         return try {
-            val token = repository.getAccessToken(refreshToken)
+            val token = repository.getAccessToken() ?: throw Exception()
             Result.Success(token)
         } catch (e: Exception) {
             Result.Failure(e)

@@ -30,6 +30,7 @@ class AuthRepositoryImpl(
         )
         val apiResponse = api.signIn(signInRequest)
         val signInResult = apiResponse.data.attributes
+        authDao.insertToken(adapter.toEntity(signInResult))
         return Token(
             tokenType = signInResult.tokenType,
             accessToken = signInResult.accessToken,
@@ -38,11 +39,11 @@ class AuthRepositoryImpl(
         )
     }
 
-    override suspend fun getAccessToken(refreshToken: String): Token {
-        val cachedToken = authDao.getToken()
+    override suspend fun getAccessToken(): Token? {
+        val cachedToken = authDao.getToken() ?: return null
         val tokenEntity =
-            if (cachedToken == null || cachedToken.expiry <= timeRepository.getCurrentTime()) {
-                val newToken = fetchNewToken(refreshToken)
+            if (cachedToken.expiry <= timeRepository.getCurrentTime()) {
+                val newToken = fetchNewToken(cachedToken.refreshToken)
                 val tokenEntity = adapter.toEntity(newToken)
                 authDao.deleteToken()
                 authDao.insertToken(tokenEntity)
