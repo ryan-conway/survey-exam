@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class SurveyListResponse(
-    @Json(name = "data") val data: List<Data>,
+    @Json(name = "data") val data: Array<Data>,
     @Json(name = "meta") val meta: Meta
 )
 
@@ -23,11 +23,11 @@ data class SurveyAttributes(
     @Json(name = "description") val description: String,
     @Json(name = "thank_email_above_threshold") val thankEmailAboveThreshold: String,
     @Json(name = "thank_email_below_threshold") val thankEmailBelowThreshold: String,
-    @Json(name = "is_active") val isActive: String,
+    @Json(name = "is_active") val isActive: Boolean,
     @Json(name = "cover_image_url") val coverImageUrl: String,
     @Json(name = "created_at") val createdAt: String,
     @Json(name = "active_at") val activeAt: String,
-    @Json(name = "inactive_at") val inactiveAt: String,
+    @Json(name = "inactive_at") val inactiveAt: String?,
     @Json(name = "survey_type") val surveyType: String,
 )
 
@@ -38,7 +38,7 @@ data class Relationship(
 
 @JsonClass(generateAdapter = true)
 data class Questions(
-    @Json(name = "data") val data: RelationshipData
+    @Json(name = "data") val data: Array<RelationshipData>
 )
 
 @JsonClass(generateAdapter = true)
