@@ -146,9 +146,9 @@ const val GET_SURVEY_LIST_RESPONSE_SUCCESS = """
   ],
   "meta": {
     "page": 1,
-    "pages": 10,
+    "pages": 1,
     "page_size": 2,
-    "records": 20
+    "records": 2
   }
 }
 """
