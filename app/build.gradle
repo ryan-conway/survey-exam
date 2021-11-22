@@ -64,4 +64,6 @@ dependencies {
 
     implementation deps.room
     kapt deps.room_kapt
+
+    implementation deps.shimmer
 }

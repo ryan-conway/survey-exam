@@ -45,7 +45,7 @@ class LoginFragment: Fragment() {
     private fun observeData() {
         viewModel.eventSuccess.observe(viewLifecycleOwner) {
             if (it == true) {
-                findNavController().navigate(R.id.action_login_to_first)
+                findNavController().navigate(R.id.action_login_to_surveyLoading)
                 viewModel.onDoneLoginSuccess()
             }
         }

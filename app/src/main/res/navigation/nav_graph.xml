@@ -29,9 +29,14 @@
         android:id="@+id/loginFragment"
         android:name="com.example.nimblesurveys.login.LoginFragment"
         android:label="LoginFragment"
-        tools:layout="@layout/fragment_login" >
+        tools:layout="@layout/fragment_login">
         <action
-            android:id="@+id/action_login_to_first"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_login_to_surveyLoading"
+            app:destination="@id/surveyLoadingFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/surveyLoadingFragment"
+        android:name="com.example.nimblesurveys.survey.SurveyLoadingFragment"
+        android:label="SurveyLoadingFragment"
+        tools:layout="@layout/fragment_survey_loading" />
 </navigation>
