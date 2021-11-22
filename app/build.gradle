@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -66,4 +67,6 @@ dependencies {
     kapt deps.room_kapt
 
     implementation deps.shimmer
+
+    implementation deps.glide
 }
