@@ -11,9 +11,15 @@ class FakeInterceptor : Interceptor {
         if (!BuildConfig.DEBUG) throw IllegalAccessError("For debugging only")
 
         val uri = chain.request().url().uri().toString()
+        val uriBase = if (uri.contains('?')) {
+            uri.substring(0, uri.indexOf('?'))
+        } else {
+            uri
+        }
         val responseString = when {
-            uri.endsWith("api/v1/oauth/token") -> LOGIN_RESPONSE_SUCCESS
-            uri.endsWith("api/v1/me") -> USER_RESPONSE_SUCCESS
+            uriBase.endsWith("api/v1/oauth/token") -> LOGIN_RESPONSE_SUCCESS
+            uriBase.endsWith("api/v1/me") -> USER_RESPONSE_SUCCESS
+            uriBase.endsWith("api/v1/surveys") -> GET_SURVEY_LIST_RESPONSE_SUCCESS
             else -> ""
         }
         return chain.proceed(chain.request())
