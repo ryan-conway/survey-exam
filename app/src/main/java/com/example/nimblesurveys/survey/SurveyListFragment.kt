@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.nimblesurveys.databinding.FragmentSurveyBinding
@@ -57,19 +58,27 @@ class SurveyListFragment : Fragment() {
             override fun onInterceptTouchEvent(rv: RecyclerView,  motionEvent: MotionEvent) =
                 pagerDecorator.isIndicatorPressing(motionEvent, rv)
         })
+
+        binding.fab.setOnClickListener { viewModel.viewSurvey(pagerDecorator.activeIndicator) }
     }
 
     private fun observeData() {
         viewModel.surveys.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.submitList(it)
-                viewModel.onDoneGetSurveys()
             }
         }
         viewModel.eventError.observe(viewLifecycleOwner) {
             if (it == true) {
                 Snackbar.make(binding.root, "Something went wrong", Snackbar.LENGTH_SHORT).show()
                 viewModel.onDoneError()
+            }
+        }
+        viewModel.eventViewSurvey.observe(viewLifecycleOwner) {
+            it?.let {
+                val action = SurveyListFragmentDirections.actionSurveyListToDetails(it.id)
+                findNavController().navigate(action)
+                viewModel.onDoneViewSurvey()
             }
         }
     }

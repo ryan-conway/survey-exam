@@ -27,5 +27,18 @@
         android:id="@+id/surveyListFragment"
         android:name="com.example.nimblesurveys.survey.SurveyListFragment"
         android:label="SurveyListFragment"
-        tools:layout="@layout/fragment_survey" />
+        tools:layout="@layout/fragment_survey" >
+        <action
+            android:id="@+id/action_surveyList_to_details"
+            app:destination="@id/surveyDetailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/surveyDetailsFragment"
+        android:name="com.example.nimblesurveys.survey.SurveyDetailsFragment"
+        android:label="SurveyDetailsFragment"
+        tools:layout="@layout/fragment_survey_details">
+        <argument
+            android:name="surveyId"
+            app:argType="string" />
+    </fragment>
 </navigation>

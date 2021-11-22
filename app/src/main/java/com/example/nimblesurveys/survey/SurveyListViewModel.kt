@@ -27,6 +27,9 @@ class SurveyListViewModel @Inject constructor(
     private val _eventError = MutableLiveData<Boolean>()
     val eventError: LiveData<Boolean> get() = _eventError
 
+    private val _eventViewSurvey = MutableLiveData<Survey>()
+    val eventViewSurvey: LiveData<Survey> get() = _eventViewSurvey
+
     fun getSurveys() = viewModelScope.launch {
         withContext(dispatchers.io()) {
             val tokenResult = getAccessTokenUseCase.execute()
@@ -46,9 +49,17 @@ class SurveyListViewModel @Inject constructor(
 
     private fun onGetSurveys(surveys: List<Survey>) = _surveys.postValue(surveys)
 
-    fun onDoneGetSurveys() = _surveys.postValue(null)
-
     private fun onError() = _eventError.postValue(true)
 
     fun onDoneError() = _eventError.postValue(null)
+
+    fun viewSurvey(position: Int) = viewModelScope.launch {
+        withContext(dispatchers.io()) {
+            val surveys = _surveys.value
+            val survey = surveys?.getOrNull(position)
+            _eventViewSurvey.postValue(survey)
+        }
+    }
+
+    fun onDoneViewSurvey() = _eventViewSurvey.postValue(null)
 }

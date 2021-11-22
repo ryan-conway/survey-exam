@@ -30,7 +30,8 @@ class PagerDecorator(
     private val indicatorRadius = 15f
     private val indicatorPadding = 180f
 
-    private var activeIndicator = 0
+    var activeIndicator = 0
+        private set
     private var isInitialized = false
 
     private var currentItemCount = 0

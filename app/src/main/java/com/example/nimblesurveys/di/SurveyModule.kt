@@ -5,6 +5,7 @@ import com.example.nimblesurveys.data.api.survey.SurveyApiService
 import com.example.nimblesurveys.data.cache.SurveyDatabase
 import com.example.nimblesurveys.data.repository.SurveyRepositoryImpl
 import com.example.nimblesurveys.domain.repository.SurveyRepository
+import com.example.nimblesurveys.domain.usecase.GetSurveyUseCase
 import com.example.nimblesurveys.domain.usecase.GetSurveysUseCase
 import dagger.Module
 import dagger.Provides
@@ -37,4 +38,7 @@ object SurveyUseCaseModule {
 
     @Provides
     fun provideGetSurveysUseCase(repository: SurveyRepository) = GetSurveysUseCase(repository)
+
+    @Provides
+    fun provideGetSurveyUseCase(repository: SurveyRepository) = GetSurveyUseCase(repository)
 }
