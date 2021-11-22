@@ -21,6 +21,8 @@ object DatabaseModule {
             context,
             SurveyDatabase::class.java,
             "survey.db"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 }
