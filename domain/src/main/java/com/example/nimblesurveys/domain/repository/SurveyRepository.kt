@@ -7,6 +7,7 @@ import com.example.nimblesurveys.domain.model.Token
 
 interface SurveyRepository {
     suspend fun getSurveys(token: Token): List<Survey>
+    suspend fun getSurvey(surveyId: String): Survey?
     suspend fun getQuestions(surveyId: String): List<Question>
     suspend fun getAnswers(questionId: String): List<Answer>
 }

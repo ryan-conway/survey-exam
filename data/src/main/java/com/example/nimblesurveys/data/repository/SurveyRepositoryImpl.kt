@@ -49,6 +49,10 @@ class SurveyRepositoryImpl(
         return surveys
     }
 
+    override suspend fun getSurvey(surveyId: String): Survey? {
+        return surveyDao.getSurvey(surveyId)?.let { adapter.toSurvey(it) }
+    }
+
     override suspend fun getQuestions(surveyId: String): List<Question> {
         TODO("Not yet implemented")
     }
