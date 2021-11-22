@@ -52,13 +52,14 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:alpha="0.5"
-            android:hint="Email"
+            app:hintEnabled="false"
             app:layout_constraintBottom_toTopOf="@id/tilPassword">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etUsername"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:hint="Email" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -67,18 +68,22 @@
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             android:alpha="0.5"
-            android:hint="Password"
+            app:hintEnabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="text|textPassword"
+                tools:text="email@sample.com" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
             android:id="@+id/bLogin"
+            style="@style/Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
