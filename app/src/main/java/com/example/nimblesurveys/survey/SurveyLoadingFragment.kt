@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.nimblesurveys.databinding.FragmentSurveyLoadingBinding
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,5 +28,24 @@ class SurveyLoadingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.root.startShimmer()
+
+        observeData()
+
+        viewModel.fetchSurveys()
+    }
+
+    private fun observeData() {
+        viewModel.eventSurveysFetched.observe(viewLifecycleOwner) {
+            if (it == true) {
+                Snackbar.make(binding.root, "Surveys fetched!", Snackbar.LENGTH_SHORT).show()
+                viewModel.onDoneSurveysFetched()
+            }
+        }
+        viewModel.eventError.observe(viewLifecycleOwner) {
+            if (it == true) {
+                Snackbar.make(binding.root, "Something went wrong", Snackbar.LENGTH_SHORT).show()
+                viewModel.onDoneError()
+            }
+        }
     }
 }
