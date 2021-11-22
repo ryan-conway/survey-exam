@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.example.nimblesurveys.R
 import com.example.nimblesurveys.databinding.FragmentSurveyLoadingBinding
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,7 +39,7 @@ class SurveyLoadingFragment : Fragment() {
     private fun observeData() {
         viewModel.eventSurveysFetched.observe(viewLifecycleOwner) {
             if (it == true) {
-                Snackbar.make(binding.root, "Surveys fetched!", Snackbar.LENGTH_SHORT).show()
+                findNavController().navigate(R.id.action_surveyLoading_to_surveyList)
                 viewModel.onDoneSurveysFetched()
             }
         }

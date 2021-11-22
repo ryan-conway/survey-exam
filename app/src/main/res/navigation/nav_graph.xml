@@ -38,5 +38,14 @@
         android:id="@+id/surveyLoadingFragment"
         android:name="com.example.nimblesurveys.survey.SurveyLoadingFragment"
         android:label="SurveyLoadingFragment"
-        tools:layout="@layout/fragment_survey_loading" />
+        tools:layout="@layout/fragment_survey_loading">
+        <action
+            android:id="@+id/action_surveyLoading_to_surveyList"
+            app:destination="@id/surveyListFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/surveyListFragment"
+        android:name="com.example.nimblesurveys.survey.SurveyListFragment"
+        android:label="SurveyListFragment"
+        tools:layout="@layout/fragment_survey" />
 </navigation>
