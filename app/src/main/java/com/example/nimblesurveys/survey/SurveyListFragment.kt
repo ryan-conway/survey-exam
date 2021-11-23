@@ -54,6 +54,7 @@ class SurveyListFragment : Fragment() {
     }
 
     private fun initUi() {
+        binding.shimmer.root.startShimmer()
         adapter = SurveyListAdapter()
         binding.recycler.setHasFixedSize(true)
         binding.recycler.adapter = adapter
@@ -78,6 +79,8 @@ class SurveyListFragment : Fragment() {
         viewModel.surveys.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.submitList(it)
+                binding.shimmer.root.visibility = View.GONE
+                binding.fab.show()
             }
         }
         viewModel.eventError.observe(viewLifecycleOwner) {
