@@ -7,7 +7,6 @@ import com.example.nimblesurveys.data.cache.SurveyDatabase
 import com.example.nimblesurveys.data.repository.AuthRepositoryImpl
 import com.example.nimblesurveys.domain.repository.AuthRepository
 import com.example.nimblesurveys.domain.repository.TimeRepository
-import com.example.nimblesurveys.domain.usecase.GetAccessTokenUseCase
 import com.example.nimblesurveys.domain.usecase.GetUserUseCase
 import com.example.nimblesurveys.domain.usecase.LoginUseCase
 import dagger.Module
@@ -46,9 +45,6 @@ object AuthModule {
 @Module
 @InstallIn(SingletonComponent::class)
 object AuthUseCaseModule {
-
-    @Provides
-    fun provideGetAccessTokenUseCase(repository: AuthRepository) = GetAccessTokenUseCase(repository)
 
     @Provides
     fun provideGetUserUseCase(repository: AuthRepository) = GetUserUseCase(repository)
