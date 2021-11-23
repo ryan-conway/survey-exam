@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.nimblesurveys.domain.model.Result
 import com.example.nimblesurveys.domain.model.Survey
 import com.example.nimblesurveys.domain.repository.DispatcherRepository
-import com.example.nimblesurveys.domain.usecase.GetAccessTokenUseCase
 import com.example.nimblesurveys.domain.usecase.GetSurveysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,7 +15,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SurveyListViewModel @Inject constructor(
-    private val getAccessTokenUseCase: GetAccessTokenUseCase,
     private val getSurveysUseCase: GetSurveysUseCase,
     private val dispatchers: DispatcherRepository
 ) : ViewModel() {
@@ -32,16 +30,10 @@ class SurveyListViewModel @Inject constructor(
 
     fun getSurveys() = viewModelScope.launch {
         withContext(dispatchers.io()) {
-            val tokenResult = getAccessTokenUseCase.execute()
-            if (tokenResult is Result.Success) {
-                val token = tokenResult.value
-                val surveyResult = getSurveysUseCase.execute(token)
-                if (surveyResult is Result.Success) {
-                    onGetSurveys(surveyResult.value)
-                } else if (surveyResult is Result.Failure) {
-                    onError()
-                }
-            } else if (tokenResult is Result.Failure) {
+            val surveyResult = getSurveysUseCase.execute()
+            if (surveyResult is Result.Success) {
+                onGetSurveys(surveyResult.value)
+            } else if (surveyResult is Result.Failure) {
                 onError()
             }
         }

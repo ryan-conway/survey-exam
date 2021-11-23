@@ -4,6 +4,7 @@ import com.example.nimblesurveys.data.adapter.SurveyAdapter
 import com.example.nimblesurveys.data.api.survey.SurveyApiService
 import com.example.nimblesurveys.data.cache.SurveyDatabase
 import com.example.nimblesurveys.data.repository.SurveyRepositoryImpl
+import com.example.nimblesurveys.domain.repository.AuthRepository
 import com.example.nimblesurveys.domain.repository.SurveyRepository
 import com.example.nimblesurveys.domain.usecase.GetSurveyUseCase
 import com.example.nimblesurveys.domain.usecase.GetSurveysUseCase
@@ -37,7 +38,8 @@ object SurveyModule {
 object SurveyUseCaseModule {
 
     @Provides
-    fun provideGetSurveysUseCase(repository: SurveyRepository) = GetSurveysUseCase(repository)
+    fun provideGetSurveysUseCase(repository: SurveyRepository, authRepository: AuthRepository) =
+        GetSurveysUseCase(repository, authRepository)
 
     @Provides
     fun provideGetSurveyUseCase(repository: SurveyRepository) = GetSurveyUseCase(repository)
