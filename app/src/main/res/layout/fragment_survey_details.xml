@@ -12,9 +12,9 @@
         android:contentDescription="Survey image"
         android:scaleType="centerCrop"
         android:tintMode="src_over"
-        app:tint="#55000000"
+        app:tint="@color/image_background_tint"
         tools:src="@tools:sample/backgrounds/scenic"
-        tools:tint="#55000000" />
+        tools:tint="@color/image_background_tint" />
 
     <ImageView
         android:id="@+id/ivBack"
