@@ -81,6 +81,8 @@ dependencies {
     implementation deps.moshi
     kapt deps.moshi_kapt
 
+    implementation deps.okhttp
+
     implementation deps.room
     kapt deps.room_kapt
 
