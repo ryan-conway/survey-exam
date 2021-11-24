@@ -9,6 +9,7 @@ import com.example.nimblesurveys.data.repository.AuthRepositoryImpl
 import com.example.nimblesurveys.domain.repository.AuthRepository
 import com.example.nimblesurveys.domain.repository.TimeRepository
 import com.example.nimblesurveys.domain.usecase.GetUserUseCase
+import com.example.nimblesurveys.domain.usecase.IsLoggedInUseCase
 import com.example.nimblesurveys.domain.usecase.LoginUseCase
 import dagger.Module
 import dagger.Provides
@@ -54,4 +55,7 @@ object AuthUseCaseModule {
 
     @Provides
     fun provideLoginUseCase(repository: AuthRepository) = LoginUseCase(repository)
+
+    @Provides
+    fun provideIsLoggedInUseCase(repository: AuthRepository) = IsLoggedInUseCase(repository)
 }
