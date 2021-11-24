@@ -1,8 +1,6 @@
 package com.example.nimblesurveys.di
 
-import com.example.nimblesurveys.data.BuildConfig
-import com.example.nimblesurveys.data.api.FakeInterceptor
-import com.example.nimblesurveys.data.api.SurveyApi
+import com.example.nimblesurveys.BuildConfig
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
@@ -18,21 +16,14 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 object ApiModule {
 
     @Provides
-    fun provideOkHttpClient(): OkHttpClient {
-        val builder = OkHttpClient.Builder()
-        if (BuildConfig.DEBUG) {
-            builder.addInterceptor(FakeInterceptor())
-        }
-        return builder.build()
-    }
-
-    @Provides
-    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
+    fun provideRetrofit(): Retrofit {
         val moshi = Moshi.Builder()
             .addLast(KotlinJsonAdapterFactory())
             .build()
+        val okHttpClient = OkHttpClient.Builder()
+            .build()
         return Retrofit.Builder()
-            .baseUrl(SurveyApi.BASE_URL)
+            .baseUrl(BuildConfig.API_BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
