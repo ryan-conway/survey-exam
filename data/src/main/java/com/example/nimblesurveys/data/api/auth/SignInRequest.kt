@@ -1,13 +1,13 @@
 package com.example.nimblesurveys.data.api.auth
 
-import retrofit2.http.Query
+import com.squareup.moshi.Json
 
 data class SignInRequest(
-    @Query("grant_type") val grantType: String = "password",
-    @Query("email") val email: String,
-    @Query("password") val password: String,
-    @Query("client_id") val clientId: String,
-    @Query("client_secret") val clientSecret: String
+    @Json(name = "grant_type") val grantType: String = "password",
+    @Json(name = "email") val email: String,
+    @Json(name = "password") val password: String,
+    @Json(name = "client_id") val clientId: String,
+    @Json(name = "client_secret") val clientSecret: String
 )
 
 
