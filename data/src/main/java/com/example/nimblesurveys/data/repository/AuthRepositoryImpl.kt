@@ -30,6 +30,7 @@ class AuthRepositoryImpl(
         )
         val apiResponse = api.signIn(signInRequest)
         val signInResult = apiResponse.data.attributes
+        authDao.deleteToken()
         authDao.insertToken(adapter.toEntity(signInResult))
         return Token(
             tokenType = signInResult.tokenType,
