@@ -25,6 +25,20 @@ android {
         }
     }
 
+    flavorDimensions "environment"
+
+    productFlavors {
+        production {
+            dimension "environment"
+            buildConfigField("String", "API_BASE_URL", "$SURVEY_API_PROD")
+        }
+
+        staging {
+            dimension "environment"
+            buildConfigField("String", "API_BASE_URL", "$SURVEY_API_STAGING")
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
