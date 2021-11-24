@@ -1,5 +1,6 @@
 package com.example.nimblesurveys.di
 
+import com.example.nimblesurveys.BuildConfig
 import com.example.nimblesurveys.data.adapter.TokenAdapter
 import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.auth.AuthApiService
@@ -20,9 +21,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AuthModule {
 
-    //TODO provide real credentials
     @Provides
-    fun provideApiCredential() = ApiCredential("", "")
+    fun provideApiCredential() = ApiCredential(
+        key = BuildConfig.API_KEY,
+        secret = BuildConfig.API_SECRET
+    )
 
     @Provides
     @Singleton
