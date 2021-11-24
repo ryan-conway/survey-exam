@@ -17,7 +17,7 @@ class TokenAdapter {
         refreshToken = apiToken.refreshToken,
         accessToken = apiToken.accessToken,
         tokenType = apiToken.tokenType,
-        expiry = apiToken.createdAt + apiToken.expiresIn,
+        expiry = (apiToken.createdAt + apiToken.expiresIn) * 1000,
     )
 
     fun toToken(entity: TokenEntity) = Token(
