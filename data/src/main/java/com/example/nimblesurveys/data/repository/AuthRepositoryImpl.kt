@@ -75,4 +75,8 @@ class AuthRepositoryImpl(
             avatar = getUserResult.avatarUrl
         )
     }
+
+    override suspend fun isLoggedIn(): Boolean {
+        return authDao.getToken() != null
+    }
 }
