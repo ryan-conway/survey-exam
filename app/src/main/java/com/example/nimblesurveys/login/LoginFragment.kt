@@ -9,6 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.example.nimblesurveys.R
 import com.example.nimblesurveys.databinding.FragmentLoginBinding
+import com.example.nimblesurveys.util.finishOnBackPressed
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,6 +18,11 @@ class LoginFragment: Fragment() {
 
     private lateinit var binding: FragmentLoginBinding
     private val viewModel: LoginViewModel by viewModels()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        finishOnBackPressed()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
