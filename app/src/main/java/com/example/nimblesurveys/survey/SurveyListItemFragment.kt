@@ -1,32 +1,40 @@
 package com.example.nimblesurveys.survey
 
+import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
-import com.example.nimblesurveys.databinding.ItemSurveyBinding
+import com.example.nimblesurveys.databinding.FragmentSurveyListItemBinding
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class SurveyListAdapter :
-    ListAdapter<SurveyListItem, SurveyListViewHolder>(SurveyListItemDiffCallback()) {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        SurveyListViewHolder.from(parent)
+class SurveyListItemFragment: Fragment() {
 
-    override fun onBindViewHolder(holder: SurveyListViewHolder, position: Int) =
-        holder.bind(getItem(position))
-}
+    private lateinit var binding: FragmentSurveyListItemBinding
+    private var surveyListItem: SurveyListItem? = null
 
-class SurveyListViewHolder(
-    private val binding: ItemSurveyBinding
-) : RecyclerView.ViewHolder(binding.root) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        surveyListItem = arguments?.getParcelable(ARG_SURVEY_ITEM)
+    }
 
-    fun bind(survey: SurveyListItem?) {
-        survey ?: return
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = FragmentSurveyListItemBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val survey = surveyListItem ?: return
 
         binding.tvDate.text = survey.date.formatDate()
         binding.tvDateSubtitle.text = survey.date.getDifference()
@@ -70,25 +78,16 @@ class SurveyListViewHolder(
     }
 
     companion object {
-        fun from(parent: ViewGroup) = SurveyListViewHolder(
-            ItemSurveyBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        )
+
+        private const val ARG_SURVEY_ITEM = "ARG_SURVEY_ITEM"
+
+        @JvmStatic
+        fun newInstance(param: SurveyListItem) =
+            SurveyListItemFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ARG_SURVEY_ITEM, param)
+                }
+            }
+
     }
 }
-
-class SurveyListItemDiffCallback : DiffUtil.ItemCallback<SurveyListItem>() {
-    override fun areItemsTheSame(oldItem: SurveyListItem, newItem: SurveyListItem) =
-        oldItem.id == newItem.id
-
-    override fun areContentsTheSame(oldItem: SurveyListItem, newItem: SurveyListItem) =
-        oldItem == newItem
-}
-
-data class SurveyListItem(
-    val id: String,
-    val name: String,
-    val description: String,
-    val coverImageUrl: String,
-    val coverImageThumbnailUrl: String,
-    val date: String
-)

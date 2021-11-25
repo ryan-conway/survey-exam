@@ -18,7 +18,7 @@
         android:id="@+id/surveyListFragment"
         android:name="com.example.nimblesurveys.survey.SurveyListFragment"
         android:label="SurveyListFragment"
-        tools:layout="@layout/fragment_survey" >
+        tools:layout="@layout/fragment_survey_list" >
         <action
             android:id="@+id/action_surveyList_to_details"
             app:destination="@id/surveyDetailsFragment"

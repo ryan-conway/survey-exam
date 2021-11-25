@@ -1,10 +1,12 @@
 package com.example.nimblesurveys.login
 
 import android.animation.AnimatorSet
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -50,6 +52,7 @@ class LoginFragment : Fragment() {
 
     private fun initUi() {
         binding.bLogin.setOnClickListener {
+            hideKeyboard(it)
             val email = binding.etUsername.text.toString()
             val password = binding.etPassword.text.toString()
             viewModel.login(email, password)
@@ -88,5 +91,10 @@ class LoginFragment : Fragment() {
                 binding.groupSigningIn.visibility = View.GONE
             }
         }
+    }
+
+    private fun hideKeyboard(view: View) {
+        val inputMethodManager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
     }
 }
