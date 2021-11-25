@@ -1,6 +1,7 @@
 package com.example.nimblesurveys.data.repository
 
-import com.example.nimblesurveys.data.adapter.SurveyAdapter
+import com.example.nimblesurveys.data.adapter.toEntity
+import com.example.nimblesurveys.data.adapter.toSurvey
 import com.example.nimblesurveys.data.api.survey.SurveyApiService
 import com.example.nimblesurveys.data.cache.SurveyDao
 import com.example.nimblesurveys.domain.model.Answer
@@ -12,21 +13,20 @@ import com.example.nimblesurveys.domain.repository.SurveyRepository
 class SurveyRepositoryImpl(
     private val api: SurveyApiService,
     private val surveyDao: SurveyDao,
-    private val adapter: SurveyAdapter,
 ) : SurveyRepository {
 
     override suspend fun getSurveys(token: Token): List<Survey> {
         var surveys = getCachedSurveys()
         if (surveys.isEmpty()) {
             surveys = getNewSurveys(token)
-            surveyDao.insertSurveys(surveys.map { adapter.toEntity(it) })
+            surveyDao.insertSurveys(surveys.map { it.toEntity() })
             surveys = getCachedSurveys()
         }
         return surveys
     }
 
     private fun getCachedSurveys(): List<Survey> {
-        return surveyDao.getSurveys().map { adapter.toSurvey(it) }
+        return surveyDao.getSurveys().map { it.toSurvey() }
     }
 
     private suspend fun getNewSurveys(token: Token): List<Survey> {
@@ -44,7 +44,7 @@ class SurveyRepositoryImpl(
             pageCount = response.meta.pages
             currentPage++
 
-            val newSurveys = response.data.map { adapter.toSurvey(it.id, it.attributes) }
+            val newSurveys = response.data.map { it.toSurvey() }
             surveys.addAll(newSurveys)
         }
 
@@ -52,7 +52,7 @@ class SurveyRepositoryImpl(
     }
 
     override suspend fun getSurvey(surveyId: String): Survey? {
-        return surveyDao.getSurvey(surveyId)?.let { adapter.toSurvey(it) }
+        return surveyDao.getSurvey(surveyId)?.toSurvey()
     }
 
     override suspend fun getQuestions(surveyId: String): List<Question> {
