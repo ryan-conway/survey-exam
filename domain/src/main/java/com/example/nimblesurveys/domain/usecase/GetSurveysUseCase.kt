@@ -1,6 +1,6 @@
 package com.example.nimblesurveys.domain.usecase
 
-import com.example.nimblesurveys.domain.exception.MissingRefreshTokenException
+import com.example.nimblesurveys.domain.exception.UnauthorizedException
 import com.example.nimblesurveys.domain.model.Result
 import com.example.nimblesurveys.domain.model.Survey
 import com.example.nimblesurveys.domain.repository.AuthRepository
@@ -12,12 +12,26 @@ class GetSurveysUseCase(
 ) {
 
     suspend fun execute(): Result<List<Survey>> {
-        return try {
-            val token = authRepository.getAccessToken() ?: throw MissingRefreshTokenException()
-            val surveys = repository.getSurveys(token)
-            Result.Success(surveys)
+        var result = try {
+            getSurveysResult()
         } catch (e: Throwable) {
             Result.Failure(e)
         }
+
+        if (result is Result.Failure && result.cause is UnauthorizedException) {
+            result = try {
+                authRepository.refreshAccessToken()
+                getSurveysResult()
+            } catch (e: Throwable) {
+                Result.Failure(e)
+            }
+        }
+
+        return result
+    }
+
+    private suspend fun getSurveysResult(): Result<List<Survey>> {
+        val surveys = repository.getSurveys()
+        return Result.Success(surveys)
     }
 }

@@ -8,7 +8,6 @@ import com.example.nimblesurveys.data.cache.SurveyEntity
 import com.example.nimblesurveys.data.util.MockInterceptor
 import com.example.nimblesurveys.data.util.getRetrofitFake
 import com.example.nimblesurveys.domain.model.Survey
-import com.example.nimblesurveys.domain.model.Token
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
@@ -30,13 +29,6 @@ class SurveyRepositoryImplTest {
     private val mockApiService = mock(SurveyApiService::class.java)
     private val mockInterceptor = mock(MockInterceptor::class.java, CALLS_REAL_METHODS)
 
-    private val token = Token(
-        tokenType = TOKEN_TYPE,
-        accessToken = ACCESS_TOKEN,
-        refreshToken = REFRESH_TOKEN,
-        expiry = CREATED_AT + EXPIRY
-    )
-
     private val mockApiServiceResponse = SurveyListResponse(emptyArray(), Meta(0, 0, 0, 0))
 
     @Before
@@ -52,7 +44,7 @@ class SurveyRepositoryImplTest {
     @Test
     fun getSurveys_success_returnSurveyList() = runBlocking {
         getSurveysSuccess()
-        val result = repository.getSurveys(token)
+        val result = repository.getSurveys()
         val survey = result.first()
         assertThat(survey, instanceOf(Survey::class.java))
     }
@@ -61,7 +53,7 @@ class SurveyRepositoryImplTest {
     fun getSurveys_failure_exceptionThrown() = runBlocking {
         getSurveysFailure()
         try {
-            repository.getSurveys(token)
+            repository.getSurveys()
             assert(false)
         } catch (e: HttpException) {
             assertThat(e.code(), `is`(401))
@@ -72,8 +64,8 @@ class SurveyRepositoryImplTest {
     @Test
     fun getSurveys_firstCall_fetchSurveysFromNetwork() = runBlocking {
         mockApiResponseSuccess()
-        repository.getSurveys(token)
-        verify(mockApiService).getSurveys(anyString(), anyInt(), anyInt())
+        repository.getSurveys()
+        verify(mockApiService).getSurveys(anyInt(), anyInt())
         Unit
     }
 
@@ -81,15 +73,15 @@ class SurveyRepositoryImplTest {
     fun getSurveys_firstCall_saveSurveysInCache() = runBlocking {
         mockApiResponseSuccess()
         assertThat(surveyDaoFake.surveysInserted, `is`(false))
-        repository.getSurveys(token)
+        repository.getSurveys()
         assertThat(surveyDaoFake.surveysInserted, `is`(true))
     }
 
     @Test
     fun getSurveys_secondCall_returnSurveysFromCache() = runBlocking {
         mockApiResponseSuccess()
-        repository.getSurveys(token)
-        verify(mockApiService, times(1)).getSurveys(anyString(), anyInt(), anyInt())
+        repository.getSurveys()
+        verify(mockApiService, times(1)).getSurveys(anyInt(), anyInt())
         Unit
     }
 
@@ -104,7 +96,7 @@ class SurveyRepositoryImplTest {
     }
 
     private suspend fun mockApiResponseSuccess() {
-        `when`(mockApiService.getSurveys(anyString(), anyInt(), anyInt()))
+        `when`(mockApiService.getSurveys(anyInt(), anyInt()))
             .thenReturn(mockApiServiceResponse)
         repository = SurveyRepositoryImpl(mockApiService, surveyDaoFake)
 
