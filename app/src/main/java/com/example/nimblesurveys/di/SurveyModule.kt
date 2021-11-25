@@ -1,6 +1,5 @@
 package com.example.nimblesurveys.di
 
-import com.example.nimblesurveys.data.adapter.SurveyAdapter
 import com.example.nimblesurveys.data.api.survey.SurveyApiService
 import com.example.nimblesurveys.data.cache.SurveyDatabase
 import com.example.nimblesurveys.data.repository.SurveyRepositoryImpl
@@ -27,8 +26,7 @@ object SurveyModule {
     ): SurveyRepository {
         return SurveyRepositoryImpl(
             retrofit.create(SurveyApiService::class.java),
-            database.surveyDao(),
-            SurveyAdapter()
+            database.surveyDao()
         )
     }
 }

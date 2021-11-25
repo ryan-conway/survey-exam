@@ -1,6 +1,5 @@
 package com.example.nimblesurveys.data.repository
 
-import com.example.nimblesurveys.data.adapter.SurveyAdapter
 import com.example.nimblesurveys.data.api.survey.Meta
 import com.example.nimblesurveys.data.api.survey.SurveyApiService
 import com.example.nimblesurveys.data.api.survey.SurveyListResponse
@@ -46,8 +45,7 @@ class SurveyRepositoryImplTest {
         surveyDaoFake = SurveyDaoFake()
         repository = SurveyRepositoryImpl(
             apiService,
-            surveyDaoFake,
-            SurveyAdapter()
+            surveyDaoFake
         )
     }
 
@@ -108,7 +106,7 @@ class SurveyRepositoryImplTest {
     private suspend fun mockApiResponseSuccess() {
         `when`(mockApiService.getSurveys(anyString(), anyInt(), anyInt()))
             .thenReturn(mockApiServiceResponse)
-        repository = SurveyRepositoryImpl(mockApiService, surveyDaoFake, SurveyAdapter())
+        repository = SurveyRepositoryImpl(mockApiService, surveyDaoFake)
 
     }
 

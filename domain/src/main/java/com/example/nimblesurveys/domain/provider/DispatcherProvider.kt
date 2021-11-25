@@ -1,8 +1,8 @@
-package com.example.nimblesurveys.domain.repository
+package com.example.nimblesurveys.domain.provider
 
 import kotlinx.coroutines.CoroutineDispatcher
 
-interface DispatcherRepository {
+interface DispatcherProvider {
     fun io(): CoroutineDispatcher
     fun main(): CoroutineDispatcher
 }

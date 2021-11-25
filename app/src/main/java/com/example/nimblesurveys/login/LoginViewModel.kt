@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nimblesurveys.domain.exception.MissingCredentialsException
 import com.example.nimblesurveys.domain.model.Result
-import com.example.nimblesurveys.domain.repository.DispatcherRepository
+import com.example.nimblesurveys.domain.provider.DispatcherProvider
 import com.example.nimblesurveys.domain.usecase.IsLoggedInUseCase
 import com.example.nimblesurveys.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val isLoggedInUseCase: IsLoggedInUseCase,
-    private val dispatchers: DispatcherRepository
+    private val dispatchers: DispatcherProvider
 ): ViewModel() {
 
     private val _eventLoginSuccess = MutableLiveData<Boolean>()

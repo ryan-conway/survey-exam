@@ -9,8 +9,3 @@ data class SignInRequest(
     @Json(name = "client_id") val clientId: String,
     @Json(name = "client_secret") val clientSecret: String
 )
-
-
-
-
-

@@ -1,6 +1,7 @@
 package com.example.nimblesurveys.data.repository
 
-import com.example.nimblesurveys.data.adapter.TokenAdapter
+import com.example.nimblesurveys.data.adapter.toEntity
+import com.example.nimblesurveys.data.adapter.toToken
 import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.auth.AccessTokenAttributes
 import com.example.nimblesurveys.data.api.auth.AccessTokenRequest
@@ -9,15 +10,14 @@ import com.example.nimblesurveys.data.api.auth.SignInRequest
 import com.example.nimblesurveys.data.cache.AuthDao
 import com.example.nimblesurveys.domain.model.Token
 import com.example.nimblesurveys.domain.model.User
+import com.example.nimblesurveys.domain.provider.TimeProvider
 import com.example.nimblesurveys.domain.repository.AuthRepository
-import com.example.nimblesurveys.domain.repository.TimeRepository
 
 class AuthRepositoryImpl(
     private val authDao: AuthDao,
     private val api: AuthApiService,
     private val apiCredential: ApiCredential,
-    private val timeRepository: TimeRepository,
-    private val adapter: TokenAdapter,
+    private val timeProvider: TimeProvider,
 ) : AuthRepository {
 
     @Throws(Throwable::class)
@@ -31,7 +31,7 @@ class AuthRepositoryImpl(
         val apiResponse = api.signIn(signInRequest)
         val signInResult = apiResponse.data.attributes
         authDao.deleteToken()
-        authDao.insertToken(adapter.toEntity(signInResult))
+        authDao.insertToken(signInResult.toEntity())
         return Token(
             tokenType = signInResult.tokenType,
             accessToken = signInResult.accessToken,
@@ -43,16 +43,16 @@ class AuthRepositoryImpl(
     override suspend fun getAccessToken(): Token? {
         val cachedToken = authDao.getToken() ?: return null
         val tokenEntity =
-            if (cachedToken.expiry <= timeRepository.getCurrentTime()) {
+            if (cachedToken.expiry <= timeProvider.getCurrentTime()) {
                 val newToken = fetchNewToken(cachedToken.refreshToken)
-                val tokenEntity = adapter.toEntity(newToken)
+                val tokenEntity = newToken.toEntity()
                 authDao.deleteToken()
                 authDao.insertToken(tokenEntity)
                 tokenEntity
             } else {
                 cachedToken
             }
-        return adapter.toToken(tokenEntity)
+        return tokenEntity.toToken()
     }
 
     private suspend fun fetchNewToken(refreshToken: String): AccessTokenAttributes {
