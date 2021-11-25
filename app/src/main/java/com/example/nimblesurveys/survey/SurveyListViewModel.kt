@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.nimblesurveys.domain.model.Result
 import com.example.nimblesurveys.domain.model.Survey
-import com.example.nimblesurveys.domain.repository.DispatcherRepository
+import com.example.nimblesurveys.domain.provider.DispatcherProvider
 import com.example.nimblesurveys.domain.usecase.GetSurveysUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SurveyListViewModel @Inject constructor(
     private val getSurveysUseCase: GetSurveysUseCase,
-    private val dispatchers: DispatcherRepository
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     private val _surveys = MutableLiveData<List<Survey>>()
