@@ -11,8 +11,8 @@
         android:layout_height="match_parent"
         android:contentDescription="@string/survey_image"
         android:scaleType="centerCrop"
-        app:tint="@color/image_background_tint"
         android:tintMode="src_over"
+        app:tint="@color/image_background_tint"
         tools:src="@tools:sample/backgrounds/scenic"
         tools:tint="@color/image_background_tint" />
 
@@ -48,6 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/activity_margin"
         android:layout_marginEnd="@dimen/activity_with_fab_margin"
+        android:ellipsize="end"
+        android:maxLines="2"
         android:textColor="@color/white"
         android:textSize="@dimen/text_large"
         android:textStyle="bold"
