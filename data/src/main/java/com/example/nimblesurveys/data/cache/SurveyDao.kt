@@ -16,7 +16,7 @@ interface SurveyDao {
 
     @Query("""
         SELECT * FROM survey
-        ORDER BY created_at ASC
+        ORDER BY active_at ASC
     """)
     fun getSurveys(): List<SurveyEntity>
 
