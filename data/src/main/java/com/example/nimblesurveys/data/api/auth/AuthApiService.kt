@@ -21,7 +21,5 @@ interface AuthApiService {
     ): ApiResponse<AccessTokenAttributes>
 
     @GET("api/v1/me")
-    suspend fun getUser(
-        @Header("Authorization") authorization: String
-    ): ApiResponse<UserAttributes>
+    suspend fun getUser(): ApiResponse<UserAttributes>
 }

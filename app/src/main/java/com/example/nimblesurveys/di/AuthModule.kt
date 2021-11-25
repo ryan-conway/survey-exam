@@ -3,9 +3,9 @@ package com.example.nimblesurveys.di
 import com.example.nimblesurveys.BuildConfig
 import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.auth.AuthApiService
+import com.example.nimblesurveys.data.api.auth.AuthInterceptor
 import com.example.nimblesurveys.data.cache.SurveyDatabase
 import com.example.nimblesurveys.data.repository.AuthRepositoryImpl
-import com.example.nimblesurveys.domain.provider.TimeProvider
 import com.example.nimblesurveys.domain.repository.AuthRepository
 import com.example.nimblesurveys.domain.usecase.GetUserUseCase
 import com.example.nimblesurveys.domain.usecase.IsLoggedInUseCase
@@ -33,13 +33,13 @@ object AuthModule {
         database: SurveyDatabase,
         retrofit: Retrofit,
         apiCredential: ApiCredential,
-        timeProvider: TimeProvider
+        authInterceptor: AuthInterceptor
     ): AuthRepository {
         return AuthRepositoryImpl(
             database.authDao(),
             retrofit.create(AuthApiService::class.java),
             apiCredential,
-            timeProvider,
+            authInterceptor,
         )
     }
 }

@@ -3,21 +3,22 @@ package com.example.nimblesurveys.data.repository
 import com.example.nimblesurveys.data.adapter.toEntity
 import com.example.nimblesurveys.data.adapter.toToken
 import com.example.nimblesurveys.data.api.ApiCredential
-import com.example.nimblesurveys.data.api.auth.AccessTokenAttributes
 import com.example.nimblesurveys.data.api.auth.AccessTokenRequest
 import com.example.nimblesurveys.data.api.auth.AuthApiService
+import com.example.nimblesurveys.data.api.auth.AuthInterceptor
 import com.example.nimblesurveys.data.api.auth.SignInRequest
 import com.example.nimblesurveys.data.cache.AuthDao
+import com.example.nimblesurveys.domain.exception.UnauthorizedException
 import com.example.nimblesurveys.domain.model.Token
 import com.example.nimblesurveys.domain.model.User
-import com.example.nimblesurveys.domain.provider.TimeProvider
 import com.example.nimblesurveys.domain.repository.AuthRepository
+import retrofit2.HttpException
 
 class AuthRepositoryImpl(
     private val authDao: AuthDao,
     private val api: AuthApiService,
     private val apiCredential: ApiCredential,
-    private val timeProvider: TimeProvider,
+    private val authInterceptor: AuthInterceptor
 ) : AuthRepository {
 
     @Throws(Throwable::class)
@@ -31,43 +32,38 @@ class AuthRepositoryImpl(
         val apiResponse = api.signIn(signInRequest)
         val signInResult = apiResponse.data.attributes
         authDao.deleteToken()
-        authDao.insertToken(signInResult.toEntity())
-        return Token(
-            tokenType = signInResult.tokenType,
-            accessToken = signInResult.accessToken,
-            refreshToken = signInResult.refreshToken,
-            expiry = signInResult.createdAt + signInResult.expiresIn
-        )
+        val tokenEntity = signInResult.toEntity()
+        authDao.insertToken(tokenEntity)
+        val token = tokenEntity.toToken()
+        setInterceptorAuthToken(token)
+        return token
     }
 
     override suspend fun getAccessToken(): Token? {
-        val cachedToken = authDao.getToken() ?: return null
-        val tokenEntity =
-            if (cachedToken.expiry <= timeProvider.getCurrentTime()) {
-                val newToken = fetchNewToken(cachedToken.refreshToken)
-                val tokenEntity = newToken.toEntity()
-                authDao.deleteToken()
-                authDao.insertToken(tokenEntity)
-                tokenEntity
-            } else {
-                cachedToken
-            }
-        return tokenEntity.toToken()
+        return authDao.getToken()?.toToken()
     }
 
-    private suspend fun fetchNewToken(refreshToken: String): AccessTokenAttributes {
+    override suspend fun refreshAccessToken() {
+        val cachedToken = getAccessToken() ?: throw UnauthorizedException()
         val accessTokenRequest = AccessTokenRequest(
-            refreshToken = refreshToken,
+            refreshToken = cachedToken.refreshToken,
             clientId = apiCredential.key,
             clientSecret = apiCredential.secret
         )
-        val apiResponse = api.getAccessToken(accessTokenRequest)
-        return apiResponse.data.attributes
+        val apiResponse = try {
+            api.getAccessToken(accessTokenRequest)
+        } catch (e: HttpException) {
+            throw e
+        }
+        val tokenEntity = apiResponse.data.attributes.toEntity()
+        authDao.deleteToken()
+        authDao.insertToken(tokenEntity)
+        val token = tokenEntity.toToken()
+        setInterceptorAuthToken(token)
     }
 
-    override suspend fun getUser(token: Token): User {
-        val authorization = "${token.tokenType} ${token.accessToken}"
-        val apiResponse = api.getUser(authorization)
+    override suspend fun getUser(): User {
+        val apiResponse = api.getUser()
         val getUserResult = apiResponse.data.attributes
         return User(
             id = apiResponse.data.id,
@@ -77,6 +73,16 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun isLoggedIn(): Boolean {
-        return authDao.getToken() != null
+        val cachedToken = authDao.getToken()?.toToken()
+        return if (cachedToken == null) {
+            false
+        } else {
+            setInterceptorAuthToken(cachedToken)
+            true
+        }
+    }
+
+    private fun setInterceptorAuthToken(token: Token) {
+        authInterceptor.setAccessToken(token)
     }
 }

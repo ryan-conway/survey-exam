@@ -7,7 +7,6 @@ import com.example.nimblesurveys.data.cache.SurveyDao
 import com.example.nimblesurveys.domain.model.Answer
 import com.example.nimblesurveys.domain.model.Question
 import com.example.nimblesurveys.domain.model.Survey
-import com.example.nimblesurveys.domain.model.Token
 import com.example.nimblesurveys.domain.repository.SurveyRepository
 
 class SurveyRepositoryImpl(
@@ -15,10 +14,10 @@ class SurveyRepositoryImpl(
     private val surveyDao: SurveyDao,
 ) : SurveyRepository {
 
-    override suspend fun getSurveys(token: Token): List<Survey> {
+    override suspend fun getSurveys(): List<Survey> {
         var surveys = getCachedSurveys()
         if (surveys.isEmpty()) {
-            surveys = getNewSurveys(token)
+            surveys = getNewSurveys()
             surveyDao.insertSurveys(surveys.map { it.toEntity() })
             surveys = getCachedSurveys()
         }
@@ -29,15 +28,13 @@ class SurveyRepositoryImpl(
         return surveyDao.getSurveys().map { it.toSurvey() }
     }
 
-    private suspend fun getNewSurveys(token: Token): List<Survey> {
+    private suspend fun getNewSurveys(): List<Survey> {
         val surveys = mutableListOf<Survey>()
-        val authorization = "${token.tokenType} ${token.accessToken}"
         var currentPage = 1
         var pageCount = 1
 
         while (currentPage <= pageCount) {
             val response = api.getSurveys(
-                authorization = authorization,
                 page = currentPage,
                 pageSize = PAGE_SIZE
             )

@@ -2,6 +2,7 @@ package com.example.nimblesurveys.data.repository
 
 import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.auth.AuthApiService
+import com.example.nimblesurveys.data.api.auth.AuthInterceptor
 import com.example.nimblesurveys.data.cache.AuthDao
 import com.example.nimblesurveys.data.cache.TokenEntity
 import com.example.nimblesurveys.data.util.MockInterceptor
@@ -30,6 +31,7 @@ class AuthRepositoryImplTest {
 
     private val mockInterceptor = mock(MockInterceptor::class.java, CALLS_REAL_METHODS)
     private val timeRepository = mock(TimeProvider::class.java)
+    private val mockAuthInterceptor = mock(AuthInterceptor::class.java)
 
     private val token = Token(
         tokenType = TOKEN_TYPE,
@@ -46,7 +48,7 @@ class AuthRepositoryImplTest {
             authDao,
             apiService,
             credential,
-            timeRepository,
+            mockAuthInterceptor,
         )
 
         `when`(timeRepository.getCurrentTime()).thenReturn(CREATED_AT)
@@ -151,14 +153,14 @@ class AuthRepositoryImplTest {
     @Test
     fun getUser_success_returnUser() = runBlocking {
         getUserSuccess()
-        val result = repository.getUser(token)
+        val result = repository.getUser()
         assertThat(result, instanceOf(User::class.java))
     }
 
     @Test
     fun getUser_success_userHasCorrectValues() = runBlocking {
         getUserSuccess()
-        val result = repository.getUser(token)
+        val result = repository.getUser()
         assertThat(result.email, `is`(EMAIL))
         assertThat(result.avatar, `is`(AVATAR_URL))
     }
@@ -166,7 +168,7 @@ class AuthRepositoryImplTest {
     @Test
     fun getUser_success_correctValuesPassed() = runBlocking {
         getUserSuccess()
-        repository.getUser(token)
+        repository.getUser()
         val authHeader = mockInterceptor.request.header("Authorization")
         assertThat(authHeader, `is`("${token.tokenType} ${token.accessToken}"))
     }
@@ -175,7 +177,7 @@ class AuthRepositoryImplTest {
     fun getUser_failure_exceptionThrown() = runBlocking {
         getUserFailure()
         try {
-            repository.getUser(token)
+            repository.getUser()
             assert(false)
         } catch (e: HttpException) {
             assertThat(e.code(), `is`(401))
