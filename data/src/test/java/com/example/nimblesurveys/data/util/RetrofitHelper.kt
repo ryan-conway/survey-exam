@@ -1,6 +1,5 @@
 package com.example.nimblesurveys.data.util
 
-import com.example.nimblesurveys.data.api.SurveyApi
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.Interceptor
@@ -8,6 +7,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
+private const val BASE_URL = "https://nimble-survey-web-staging.herokuapp.com/"
 
 fun getRetrofitFake(interceptor: Interceptor): Retrofit {
     val okHttpClient = OkHttpClient.Builder()
@@ -17,7 +17,7 @@ fun getRetrofitFake(interceptor: Interceptor): Retrofit {
         .addLast(KotlinJsonAdapterFactory())
         .build()
     return Retrofit.Builder()
-        .baseUrl(SurveyApi.BASE_URL)
+        .baseUrl(BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(MoshiConverterFactory.create(moshi))
         .build()
