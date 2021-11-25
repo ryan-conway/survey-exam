@@ -9,7 +9,7 @@ import com.example.nimblesurveys.data.util.MockInterceptor
 import com.example.nimblesurveys.data.util.getRetrofitFake
 import com.example.nimblesurveys.domain.model.Token
 import com.example.nimblesurveys.domain.model.User
-import com.example.nimblesurveys.domain.repository.TimeRepository
+import com.example.nimblesurveys.domain.provider.TimeProvider
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.*
 import org.hamcrest.MatcherAssert.assertThat
@@ -30,7 +30,7 @@ class AuthRepositoryImplTest {
     private val credential = ApiCredential(API_KEY, API_SECRET)
 
     private val mockInterceptor = mock(MockInterceptor::class.java, CALLS_REAL_METHODS)
-    private val timeRepository = mock(TimeRepository::class.java)
+    private val timeRepository = mock(TimeProvider::class.java)
 
     private val token = Token(
         tokenType = TOKEN_TYPE,

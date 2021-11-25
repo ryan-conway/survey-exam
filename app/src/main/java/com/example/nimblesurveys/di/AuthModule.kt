@@ -6,8 +6,8 @@ import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.auth.AuthApiService
 import com.example.nimblesurveys.data.cache.SurveyDatabase
 import com.example.nimblesurveys.data.repository.AuthRepositoryImpl
+import com.example.nimblesurveys.domain.provider.TimeProvider
 import com.example.nimblesurveys.domain.repository.AuthRepository
-import com.example.nimblesurveys.domain.repository.TimeRepository
 import com.example.nimblesurveys.domain.usecase.GetUserUseCase
 import com.example.nimblesurveys.domain.usecase.IsLoggedInUseCase
 import com.example.nimblesurveys.domain.usecase.LoginUseCase
@@ -34,13 +34,13 @@ object AuthModule {
         database: SurveyDatabase,
         retrofit: Retrofit,
         apiCredential: ApiCredential,
-        timeRepository: TimeRepository
+        timeProvider: TimeProvider
     ): AuthRepository {
         return AuthRepositoryImpl(
             database.authDao(),
             retrofit.create(AuthApiService::class.java),
             apiCredential,
-            timeRepository,
+            timeProvider,
             TokenAdapter()
         )
     }

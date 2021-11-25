@@ -9,14 +9,14 @@ import com.example.nimblesurveys.data.api.auth.SignInRequest
 import com.example.nimblesurveys.data.cache.AuthDao
 import com.example.nimblesurveys.domain.model.Token
 import com.example.nimblesurveys.domain.model.User
+import com.example.nimblesurveys.domain.provider.TimeProvider
 import com.example.nimblesurveys.domain.repository.AuthRepository
-import com.example.nimblesurveys.domain.repository.TimeRepository
 
 class AuthRepositoryImpl(
     private val authDao: AuthDao,
     private val api: AuthApiService,
     private val apiCredential: ApiCredential,
-    private val timeRepository: TimeRepository,
+    private val timeProvider: TimeProvider,
     private val adapter: TokenAdapter,
 ) : AuthRepository {
 
@@ -43,7 +43,7 @@ class AuthRepositoryImpl(
     override suspend fun getAccessToken(): Token? {
         val cachedToken = authDao.getToken() ?: return null
         val tokenEntity =
-            if (cachedToken.expiry <= timeRepository.getCurrentTime()) {
+            if (cachedToken.expiry <= timeProvider.getCurrentTime()) {
                 val newToken = fetchNewToken(cachedToken.refreshToken)
                 val tokenEntity = adapter.toEntity(newToken)
                 authDao.deleteToken()

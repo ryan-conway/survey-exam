@@ -1,7 +1,7 @@
 package com.example.nimblesurveys.data.repository
 
-import com.example.nimblesurveys.domain.repository.TimeRepository
+import com.example.nimblesurveys.domain.provider.TimeProvider
 
-class TimeRepositoryImpl: TimeRepository {
+class TimeProviderImpl: TimeProvider {
     override fun getCurrentTime() = System.currentTimeMillis()
 }
