@@ -31,7 +31,7 @@ class SurveyListViewHolder(
         binding.tvDate.text = survey.activeAt.formatDate()
         binding.tvDateSubtitle.text = survey.activeAt.getDifference()
         binding.tvSurveyName.text = survey.title
-        binding.tvSurveyDescription.text = survey.description + survey.description + survey.description
+        binding.tvSurveyDescription.text = survey.description
 
         Glide.with(binding.ivBackground)
             .load("${survey.coverImageUrl}l")
