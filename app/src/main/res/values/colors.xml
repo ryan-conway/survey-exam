@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00000000</color>
     <color name="image_background_tint">#55000000</color>
+    <color name="white_tint">#55FFFFFF</color>
 </resources>

@@ -28,6 +28,8 @@ class SurveyListViewModel @Inject constructor(
     private val _eventViewSurvey = MutableLiveData<Survey>()
     val eventViewSurvey: LiveData<Survey> get() = _eventViewSurvey
 
+    var restorePage: Int? = null
+
     fun getSurveys() = viewModelScope.launch {
         withContext(dispatchers.io()) {
             val surveyResult = getSurveysUseCase.execute()

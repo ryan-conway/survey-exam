@@ -2,28 +2,25 @@ package com.example.nimblesurveys.survey
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.PagerSnapHelper
-import androidx.recyclerview.widget.RecyclerView
-import com.example.nimblesurveys.databinding.FragmentSurveyBinding
-import com.example.nimblesurveys.util.PagerDecorator
-import com.example.nimblesurveys.util.PixelUtil
+import com.example.nimblesurveys.R
+import com.example.nimblesurveys.databinding.FragmentSurveyListBinding
 import com.example.nimblesurveys.util.finishOnBackPressed
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SurveyListFragment : Fragment() {
 
-    private lateinit var binding: FragmentSurveyBinding
+    private lateinit var binding: FragmentSurveyListBinding
     private val viewModel: SurveyListViewModel by viewModels()
 
-    private lateinit var adapter: SurveyListAdapter
+    private lateinit var adapter: SurveyListFragmentAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +33,7 @@ class SurveyListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentSurveyBinding.inflate(inflater, container, false)
+        binding = FragmentSurveyListBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -48,32 +45,33 @@ class SurveyListFragment : Fragment() {
         viewModel.getSurveys()
     }
 
-    private fun initUi() {
+    private fun initUi() = activity?.let { activity ->
         binding.shimmer.root.startShimmer()
-        adapter = SurveyListAdapter()
-        binding.recycler.setHasFixedSize(true)
-        binding.recycler.adapter = adapter
-        PagerSnapHelper().attachToRecyclerView(binding.recycler)
-        val pixelUtil = PixelUtil(binding.root.context)
-        val pagerDecorator = PagerDecorator(
-            pixelUtil.dpToPx(40f),
-            pixelUtil.dpToPx(32F) + pixelUtil.spToPx(28f * 3f) + pixelUtil.spToPx(18f * 3f)
-        )
-        binding.recycler.addItemDecoration(pagerDecorator)
-        binding.recycler.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
-            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) = Unit
-            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) = Unit
-            override fun onInterceptTouchEvent(rv: RecyclerView,  motionEvent: MotionEvent) =
-                pagerDecorator.isIndicatorPressing(motionEvent, rv)
-        })
 
-        binding.fab.setOnClickListener { viewModel.viewSurvey(pagerDecorator.activeIndicator) }
+        val tabPosY = binding.viewpager.height - (
+                resources.getDimension(R.dimen.activity_margin) +
+                        (resources.getDimension(R.dimen.text_medium) * 2) +
+                        (resources.getDimension(R.dimen.text_large) * 2.5f)
+                )
+
+        binding.tabLayout.y = tabPosY
+        adapter = SurveyListFragmentAdapter(activity)
+        binding.viewpager.adapter = adapter
+        TabLayoutMediator(binding.tabLayout, binding.viewpager) { _, _ -> }.attach()
+
+        binding.fab.setOnClickListener {
+            viewModel.viewSurvey(binding.tabLayout.selectedTabPosition)
+        }
     }
 
     private fun observeData() {
         viewModel.surveys.observe(viewLifecycleOwner) {
             it?.let {
-                adapter.submitList(it.map { survey -> survey.toListItem() })
+                adapter.setItems(it.map { survey -> survey.toListItem() })
+                viewModel.restorePage?.let { page ->
+                    binding.viewpager.setCurrentItem(page, false)
+                    viewModel.restorePage = null
+                }
                 binding.shimmer.root.visibility = View.GONE
                 binding.fab.show()
             }
@@ -86,6 +84,7 @@ class SurveyListFragment : Fragment() {
         }
         viewModel.eventViewSurvey.observe(viewLifecycleOwner) {
             it?.let {
+                viewModel.restorePage = binding.tabLayout.selectedTabPosition
                 val action = SurveyListFragmentDirections.actionSurveyListToDetails(it.id)
                 findNavController().navigate(action)
                 viewModel.onDoneViewSurvey()
