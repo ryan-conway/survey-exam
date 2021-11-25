@@ -20,6 +20,7 @@ class SurveyRepositoryImpl(
         if (surveys.isEmpty()) {
             surveys = getNewSurveys(token)
             surveyDao.insertSurveys(surveys.map { adapter.toEntity(it) })
+            surveys = getCachedSurveys()
         }
         return surveys
     }
