@@ -37,6 +37,7 @@ class SurveyRepositoryImpl(
         while (currentPage <= pageCount) {
             val response = api.getSurveys(
                 authorization = authorization,
+                page = currentPage,
                 pageSize = PAGE_SIZE
             )
             pageCount = response.meta.pages
