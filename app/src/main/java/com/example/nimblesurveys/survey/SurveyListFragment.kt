@@ -73,7 +73,7 @@ class SurveyListFragment : Fragment() {
     private fun observeData() {
         viewModel.surveys.observe(viewLifecycleOwner) {
             it?.let {
-                adapter.submitList(it)
+                adapter.submitList(it.map { survey -> survey.toListItem() })
                 binding.shimmer.root.visibility = View.GONE
                 binding.fab.show()
             }

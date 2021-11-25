@@ -7,13 +7,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.nimblesurveys.databinding.ItemSurveyBinding
-import com.example.nimblesurveys.domain.model.Survey
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class SurveyListAdapter : ListAdapter<Survey, SurveyListViewHolder>(SurveyDiffCallback()) {
+class SurveyListAdapter :
+    ListAdapter<SurveyListItem, SurveyListViewHolder>(SurveyListItemDiffCallback()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         SurveyListViewHolder.from(parent)
 
@@ -25,16 +25,16 @@ class SurveyListViewHolder(
     private val binding: ItemSurveyBinding
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(survey: Survey?) {
+    fun bind(survey: SurveyListItem?) {
         survey ?: return
 
-        binding.tvDate.text = survey.activeAt.formatDate()
-        binding.tvDateSubtitle.text = survey.activeAt.getDifference()
-        binding.tvSurveyName.text = survey.title
-        binding.tvSurveyDescription.text = survey.description + survey.description + survey.description
+        binding.tvDate.text = survey.date.formatDate()
+        binding.tvDateSubtitle.text = survey.date.getDifference()
+        binding.tvSurveyName.text = survey.name
+        binding.tvSurveyDescription.text = survey.description
 
         Glide.with(binding.ivBackground)
-            .load("${survey.coverImageUrl}l")
+            .load(survey.coverImageThumbnailUrl)
             .thumbnail(Glide.with(binding.ivBackground).load(survey.coverImageUrl))
             .into(binding.ivBackground)
     }
@@ -76,7 +76,19 @@ class SurveyListViewHolder(
     }
 }
 
-class SurveyDiffCallback : DiffUtil.ItemCallback<Survey>() {
-    override fun areItemsTheSame(oldItem: Survey, newItem: Survey) = oldItem.id == newItem.id
-    override fun areContentsTheSame(oldItem: Survey, newItem: Survey) = oldItem == newItem
+class SurveyListItemDiffCallback : DiffUtil.ItemCallback<SurveyListItem>() {
+    override fun areItemsTheSame(oldItem: SurveyListItem, newItem: SurveyListItem) =
+        oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: SurveyListItem, newItem: SurveyListItem) =
+        oldItem == newItem
 }
+
+data class SurveyListItem(
+    val id: String,
+    val name: String,
+    val description: String,
+    val coverImageUrl: String,
+    val coverImageThumbnailUrl: String,
+    val date: String
+)
