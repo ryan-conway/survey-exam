@@ -1,7 +1,6 @@
 package com.example.nimblesurveys.di
 
 import com.example.nimblesurveys.BuildConfig
-import com.example.nimblesurveys.data.adapter.TokenAdapter
 import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.auth.AuthApiService
 import com.example.nimblesurveys.data.cache.SurveyDatabase
@@ -41,7 +40,6 @@ object AuthModule {
             retrofit.create(AuthApiService::class.java),
             apiCredential,
             timeProvider,
-            TokenAdapter()
         )
     }
 }

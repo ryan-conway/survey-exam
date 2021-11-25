@@ -1,6 +1,7 @@
 package com.example.nimblesurveys.data.repository
 
-import com.example.nimblesurveys.data.adapter.TokenAdapter
+import com.example.nimblesurveys.data.adapter.toEntity
+import com.example.nimblesurveys.data.adapter.toToken
 import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.auth.AccessTokenAttributes
 import com.example.nimblesurveys.data.api.auth.AccessTokenRequest
@@ -17,7 +18,6 @@ class AuthRepositoryImpl(
     private val api: AuthApiService,
     private val apiCredential: ApiCredential,
     private val timeProvider: TimeProvider,
-    private val adapter: TokenAdapter,
 ) : AuthRepository {
 
     @Throws(Throwable::class)
@@ -31,7 +31,7 @@ class AuthRepositoryImpl(
         val apiResponse = api.signIn(signInRequest)
         val signInResult = apiResponse.data.attributes
         authDao.deleteToken()
-        authDao.insertToken(adapter.toEntity(signInResult))
+        authDao.insertToken(signInResult.toEntity())
         return Token(
             tokenType = signInResult.tokenType,
             accessToken = signInResult.accessToken,
@@ -45,14 +45,14 @@ class AuthRepositoryImpl(
         val tokenEntity =
             if (cachedToken.expiry <= timeProvider.getCurrentTime()) {
                 val newToken = fetchNewToken(cachedToken.refreshToken)
-                val tokenEntity = adapter.toEntity(newToken)
+                val tokenEntity = newToken.toEntity()
                 authDao.deleteToken()
                 authDao.insertToken(tokenEntity)
                 tokenEntity
             } else {
                 cachedToken
             }
-        return adapter.toToken(tokenEntity)
+        return tokenEntity.toToken()
     }
 
     private suspend fun fetchNewToken(refreshToken: String): AccessTokenAttributes {

@@ -1,6 +1,5 @@
 package com.example.nimblesurveys.data.repository
 
-import com.example.nimblesurveys.data.adapter.TokenAdapter
 import com.example.nimblesurveys.data.api.ApiCredential
 import com.example.nimblesurveys.data.api.auth.AuthApiService
 import com.example.nimblesurveys.data.cache.AuthDao
@@ -48,7 +47,6 @@ class AuthRepositoryImplTest {
             apiService,
             credential,
             timeRepository,
-            TokenAdapter()
         )
 
         `when`(timeRepository.getCurrentTime()).thenReturn(CREATED_AT)
