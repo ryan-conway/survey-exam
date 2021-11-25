@@ -185,6 +185,20 @@ class AuthRepositoryImplTest {
         }
     }
 
+    @Test
+    fun isLoggedIn_loginNotCalled_returnFalse() = runBlocking {
+        val isLoggedIn = repository.isLoggedIn()
+        assertThat(isLoggedIn, `is`(false))
+    }
+
+    @Test
+    fun isLoggedIn_loginCalled_returnTrue() = runBlocking {
+        loginSuccess()
+        repository.login(EMAIL, PASSWORD)
+        val isLoggedIn = repository.isLoggedIn()
+        assertThat(isLoggedIn, `is`(true))
+    }
+
     private fun loginSuccess() {
         `when`(mockInterceptor.getResponse()).thenReturn(LOGIN_RESPONSE_SUCCESS)
         `when`(mockInterceptor.getCode()).thenReturn(200)

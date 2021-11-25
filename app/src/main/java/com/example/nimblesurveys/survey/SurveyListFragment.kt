@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -14,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.nimblesurveys.databinding.FragmentSurveyBinding
 import com.example.nimblesurveys.util.PagerDecorator
 import com.example.nimblesurveys.util.PixelUtil
+import com.example.nimblesurveys.util.finishOnBackPressed
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -28,12 +28,7 @@ class SurveyListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requireActivity().onBackPressedDispatcher
-            .addCallback(this, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    activity?.finish()
-                }
-            })
+        finishOnBackPressed()
     }
 
     override fun onCreateView(
