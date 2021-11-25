@@ -51,11 +51,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilUsername"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            style="@style/TextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:alpha="0.5"
             app:hintEnabled="false"
             app:layout_constraintBottom_toTopOf="@id/tilPassword">
 
@@ -63,16 +62,20 @@
                 android:id="@+id/etUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/email" />
+                android:hint="@string/email"
+                android:imeOptions="actionNext"
+                android:maxLines="1"
+                android:inputType="text"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white_tint" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
-            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            style="@style/TextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            android:alpha="0.5"
             app:hintEnabled="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -82,8 +85,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/password"
+                android:imeOptions="actionDone"
                 android:inputType="text|textPassword"
-                tools:text="email@sample.com" />
+                android:maxLines="1"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white_tint" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
